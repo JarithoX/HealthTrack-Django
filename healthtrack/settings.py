@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'account',
     'home',
     'panel',
-    'recomendaciones',
+    'reportes',
+    'seguimiento',
 
 
 ]
@@ -58,10 +59,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'healthtrack.urls'
 
+import os
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'healthtrack', 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
