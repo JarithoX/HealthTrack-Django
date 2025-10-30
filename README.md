@@ -24,7 +24,12 @@ Python -m venv entorno
 ```powershell
 .\Activate.ps1
 ```
- 
+
+4- Instalar DJANGO
+
+```
+pip install django
+```
 
 
 

@@ -11,27 +11,31 @@
 
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Inicio</a>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'home' %}">Registro de Hábitos</a>
-                </li>
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Inicio</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">Registro de Hábitos</a>
+                    </li>
 
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'home' %}">Mi Progreso</a>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'home' %}">Panel Profesional</a>
-                </li>
-                
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'home' %}">Cerrar Sesión</a>
-                </li>
-
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">Mi Progreso</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">Panel Profesional</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">Cerrar Sesión</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </div>
