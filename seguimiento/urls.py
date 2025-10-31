@@ -7,5 +7,5 @@ urlpatterns = [
     path('registrar/', views.habitos_registrar, name='habitos_registrar'),
     
     # URL completa será: /habitos/ (para la lista)
-    path('', views.habitos_listar, name='habitos_listar'),
+    path('historial/', views.habitos_listar, name='habitos_listar'),
 ]
