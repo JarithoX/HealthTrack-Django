@@ -1,4 +1,24 @@
+
+# Ignorar el entorno virtual (ya lo tienes, pero más completo)
+/entorno/
 /entorno
 entorno/
 .entorno/
 ./entorno
+.venv/
+env/
+
+# Archivos de Django y Python generados
+__pycache__/
+*.pyc
+*.log
+*.sqlite3 
+# 🚨 Importante para no subir tu base de datos local (db.sqlite3)
+.env 
+
+# Archivos estáticos y media (si se usan localmente)
+/static/
+/media/
+
+# Ignorar archivos del Node.js API (Si por error estuvieran aquí)
+/node_modules
