@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
     <div class="container-fluid">
         
-        <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'home:index' %}">
             <span class="fs-4 fw-bold">HealthTrack</span>
             </a>
 
@@ -13,19 +13,19 @@
             <ul class="navbar-nav ms-auto">
                 {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Inicio</a>
+                        <a class="nav-link active" aria-current="page" href="{% url 'home:index' %}">Inicio</a>
                     </li>
                     
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'home' %}">Registro de Hábitos</a>
+                        <a class="nav-link" href="{% url 'home:index' %}">Registro de Hábitos</a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'home' %}">Mi Progreso</a>
+                        <a class="nav-link" href="{% url 'home:index' %}">Mi Progreso</a>
                     </li>
                     
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'home' %}">Panel Profesional</a>
+                        <a class="nav-link" href="{% url 'home:index' %}">Panel Profesional</a>
                     </li>
                     
                     <li class="nav-item">

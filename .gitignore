@@ -6,3 +6,10 @@ entorno/
 ./entorno
 .venv/
 env/
+
+# Archivos de Django
+db.sqlite3
+
+# Archivos de Python
+*.pyc
+__pycache__/
