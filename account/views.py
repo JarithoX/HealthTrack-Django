@@ -3,28 +3,56 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.conf import settings
-from django.contrib.auth import get_user_model # Necesario si quieres crear el usuario local de Django
 import requests
+
+from django.contrib.auth.models import User
 
 # URL de la API de Node.js: se puede definir en settings.py o directamente aquí
 # Si no usas settings.py, usa esta:
 API_USUARIOS_URL = 'http://localhost:3000/api/usuarios' 
-User = get_user_model() # Para el paso opcional de creación de usuario local
+
 
 def login_view(request):
     # La lógica de autenticación actual usa el backend de Django (base de datos local).
     # Para usar el usuario creado en Firestore, necesitarías un Custom Authentication Backend.
     # Por ahora, mantendremos esta lógica si tienes usuarios de prueba en Django.
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('home:index')
     
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
+
         if user is not None:
             login(request, user)
-            return redirect('home')
+            username = request.user.username
+            # 🚨 LÓGICA DE ONBOARDING POST-LOGIN 🚨
+            try:
+                # 1. Consultar el perfil del usuario a la API de Node.js/Firestore
+                #    (Asumimos un endpoint GET /api/usuarios/{username})
+                resp = requests.get(f"{API_USUARIOS_URL}/usuarios/username/{username}", timeout=5)
+                
+                if resp.status_code == 200:
+                    user_data = resp.json()
+                    
+                # 🚨 LÓGICA DE VERIFICACIÓN SIMPLIFICADA 🚨
+                    is_active = user_data.get('activo', False) # Por defecto, si el campo no existe, es False
+                    
+                    if not is_active:   
+                        messages.warning(request, "Bienvenido. Por favor, completa tu perfil para continuar.")
+                        # Redirigir a la vista de Onboarding
+                        return redirect('home:completar_perfil')
+                    
+                # Si la API falla (ej. 404), o si el perfil está completo
+                return redirect('home:index')
+                
+            except requests.RequestException:
+                # Si la API de Node.js no está corriendo, asume que debe ir al index.
+                # Es mejor loguear al usuario que bloquearlo si la API tiene un fallo temporal.
+                messages.warning(request, "Error al verificar el estado del perfil. Continuar bajo tu propia responsabilidad.")
+                return redirect('home:index')
+        
         # Si el usuario no existe en la DB local, pero sí en Firestore, el login fallará.
         messages.error(request, 'Nombre de usuario o contraseña incorrectos.')
     return render(request, 'account/login.html')
@@ -32,26 +60,14 @@ def login_view(request):
 
 def register_view(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('home:index')
 
     if request.method == 'POST':
         # 🚨 CORRECCIÓN CLAVE: Mapear campos del formulario HTML a la estructura esperada por la API Node.js/Firestore
         data = {
-            'nombre': request.POST.get('nombre', '').strip(),       # Corregido: de 'nombres' a 'nombre'
-            'apellido': request.POST.get('apellido', '').strip(),   # Corregido: de 'apellidos' a 'apellido'
-            'email': request.POST.get('email', '').strip(),
-            
-            # 🚨 Corregido: de 'fecha_nacimiento' a 'edad' (que es el campo en el form)
-            'edad': request.POST.get('edad', '').strip(),
-            
-            # Corregido: de 'sexo' a 'genero' (que es el campo en el form)
-            'genero': request.POST.get('genero', '').strip(),
-            
-            # 🚨 Añadidos campos de salud faltantes en la extracción
-            'peso': request.POST.get('peso', '').strip(),
-            'altura': request.POST.get('altura', '').strip(), 
-            
-            'condiciones_medicas': request.POST.get('condiciones_medicas', '').strip(),
+            'nombre': request.POST.get('nombre', '').strip(),       
+            'apellido': request.POST.get('apellido', '').strip(),   
+            'email': request.POST.get('email', '').strip(),       
             'username': request.POST.get('username', '').strip(),
             'password': request.POST.get('password', ''),
         }
