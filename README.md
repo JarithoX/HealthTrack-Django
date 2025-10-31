@@ -27,10 +27,13 @@ Python -m venv entorno
 
 4- Instalar DJANGO
 
-```
+```powershell
 pip install django
 ```
 
+```powershell
+pip install requests
+```
 
 
 
