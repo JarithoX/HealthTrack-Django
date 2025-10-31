@@ -1,0 +1,47 @@
+{% extends 'base.html' %} 
+
+{% block title %}Mis Hábitos{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>📈 Historial de Hábitos</h2>
+    <hr>
+
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% elif habitos %}
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Calorías</th>
+                    <th>Pasos</th>
+                    <th>Sueño (hrs)</th>
+                    <th>Agua (L)</th>
+                    <th>Comentario</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for habito in habitos %}
+                <tr>
+                    <td>{{ habito.fecha | date:"d M Y" }}</td>
+                    <td>{{ habito.calorias }}</td>
+                    <td>{{ habito.pasos }}</td>
+                    <td>{{ habito.horas_sueno }}</td>
+                    <td>{{ habito.litros_agua }}</td>
+                    <td>{{ habito.comentario | default:"N/A" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">Aún no has registrado ningún hábito. ¡Empieza a registrar!</div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{% url 'habitos_registrar' %}" class="btn btn-primary">
+            + Registrar Nuevo Hábito
+        </a>
+    </div>
+</div>
+{% endblock %}
