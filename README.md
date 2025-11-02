@@ -35,5 +35,18 @@ pip install django
 pip install requests
 ```
 
+## Ejecutar proyecto:
 
+1.- Activa el entorno virtual
+```powershell
+cd .\entorno\Scripts\
+```
 
+```powershell
+.\Activate.ps1
+```
+2.- Volver a la carpeta raiz (cd..) y correr el servidor:
+
+```powershell
+python manage.py runserver
+```ñl

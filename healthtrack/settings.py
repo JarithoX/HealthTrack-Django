@@ -127,3 +127,6 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 API_BASE_URL = "http://localhost:3000/api"
 
+AUTHENTICATION_BACKENDS = [
+    'account.backend.FirestoreAuthBackend',
+]

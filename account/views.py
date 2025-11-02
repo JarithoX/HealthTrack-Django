@@ -7,15 +7,11 @@ import requests
 
 from django.contrib.auth.models import User
 
-# URL de la API de Node.js: se puede definir en settings.py o directamente aquí
-# Si no usas settings.py, usa esta:
+# Se puede usar la URL de settings.py, o definirla aquí directamente:
 API_USUARIOS_URL = 'http://localhost:3000/api/usuarios' 
 
-
 def login_view(request):
-    # La lógica de autenticación actual usa el backend de Django (base de datos local).
-    # Para usar el usuario creado en Firestore, necesitarías un Custom Authentication Backend.
-    # Por ahora, mantendremos esta lógica si tienes usuarios de prueba en Django.
+    # La lógica de autenticación actual usa el account/backend.py para consultar en firebase.
     if request.user.is_authenticated:
         return redirect('home:index')
     
@@ -30,31 +26,29 @@ def login_view(request):
             # 🚨 LÓGICA DE ONBOARDING POST-LOGIN 🚨
             try:
                 # 1. Consultar el perfil del usuario a la API de Node.js/Firestore
-                #    (Asumimos un endpoint GET /api/usuarios/{username})
-                resp = requests.get(f"{API_USUARIOS_URL}/usuarios/username/{username}", timeout=5)
+                resp = requests.get(f"{API_USUARIOS_URL}/username/{username}")
                 
                 if resp.status_code == 200:
                     user_data = resp.json()
-                    
-                # 🚨 LÓGICA DE VERIFICACIÓN SIMPLIFICADA 🚨
-                    is_active = user_data.get('activo', False) # Por defecto, si el campo no existe, es False
-                    
-                    if not is_active:   
-                        messages.warning(request, "Bienvenido. Por favor, completa tu perfil para continuar.")
-                        # Redirigir a la vista de Onboarding
+                    is_active = bool(user_data.get('activo'))  # asegura booleano
+
+                    if not is_active:
+                        messages.warning(request, "Bienvenido. Completa tu perfil.")
                         return redirect('home:completar_perfil')
                     
-                # Si la API falla (ej. 404), o si el perfil está completo
-                return redirect('home:index')
+                    return redirect('home:index')
+                else:
+                    # Si la API responde con error (ej. 404, 500, etc.), forzamos el onboarding por seguridad.
+                    messages.warning(request, "Error de verificación de perfil con la API. Completa tu perfil.")
+                    return redirect('home:completar_perfil')
                 
             except requests.RequestException:
-                # Si la API de Node.js no está corriendo, asume que debe ir al index.
-                # Es mejor loguear al usuario que bloquearlo si la API tiene un fallo temporal.
-                messages.warning(request, "Error al verificar el estado del perfil. Continuar bajo tu propia responsabilidad.")
-                return redirect('home:index')
+                # Si NO HAY CONEXIÓN, forzamos el onboarding
+                # Opcional: Podrías forzar el logout o mostrar una plantilla de error de servicio.
+                messages.warning(request, "Error de conexión con la API. Intenta más tarde.")
+                return redirect('home:completar_perfil')
         
-        # Si el usuario no existe en la DB local, pero sí en Firestore, el login fallará.
-        messages.error(request, 'Nombre de usuario o contraseña incorrectos.')
+    messages.error(request, 'Nombre de usuario o contraseña incorrectos.')
     return render(request, 'account/login.html')
 
 
