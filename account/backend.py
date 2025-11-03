@@ -1,23 +1,23 @@
-# account/backends.py
-
 from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.conf import settings
 import requests
 
-# Intenta obtener la URL de settings, si no, usa el valor local.
+User = get_user_model()
+
 API_BASE_URL = getattr(settings, 'API_BASE_URL', 'http://localhost:3000/api')
 
 class FirestoreAuthBackend(BaseBackend):
     """
-    Backend personalizado para validar credenciales contra la API Node.js/Firestore.
+    Backend personalizado para validar credenciales y sincronizar permisos con la API Node.js/Firestore.
     """
     def authenticate(self, request, username=None, password=None, **kwargs):
         if not username or not password:
             return None
 
         try:
-            # 🚨 1. Llama al nuevo endpoint POST /usuarios/login en Node.js 🚨
+            # 🚨 1. Llama al endpoint de login en Node.js (que ahora devuelve rol y activo) 🚨
             resp = requests.post(
                 f"{API_BASE_URL}/usuarios/login", 
                 json={'username': username, 'password': password},
@@ -25,29 +25,45 @@ class FirestoreAuthBackend(BaseBackend):
             )
             
             if resp.status_code == 200:
-                # 2. Credenciales válidas: Crea/Obtiene el usuario localmente.
-                #    Esto es SOLO para mantener la sesión de Django.
-                try:
-                    # Usamos get_or_create para que la copia de Django exista.
-                    user, created = User.objects.get_or_create(
-                        username=username, 
-                        defaults={'email': f"{username}@temp.healthtrack.com"} # Usar un email temporal
-                    )
-                    if created:
-                        # Evita que se pueda loguear directamente a la DB local si alguien lo intenta
-                        user.set_unusable_password() 
-                        user.save()
-                    return user # Usuario autenticado y listo para la sesión
-                except Exception as e:
-                    print(f"Error creando/obteniendo usuario local: {e}")
-                    return None 
-            
-            # 3. Credenciales inválidas (401 de la API de Node.js)
-            return None 
+                user_data = resp.json()
+                # 2. 2. Obtener o crear el usuario local de Django (get_or_create)
+                # Usamos el email real si la API lo devuelve, si no, uno temporal.
+                user, created = User.objects.get_or_create(
+                    username=username, 
+                    defaults={'email': user_data.get('email', f"{username}@temp.healthtrack.com")} 
+                )
 
-        except requests.exceptions.RequestException:
-            # Error de conexión (Node.js no está corriendo)
-            print("Error de conexión con la API de Node.js al intentar login.")
+                if created:
+                    # Si es nuevo, evitamos el login con contraseña local
+                    user.set_unusable_password() 
+
+                # 3. 🚨 SINCRONIZACIÓN DE ROLES (Mapeo de Firebase a Django Flags) 🚨
+                firebase_rol = user_data.get('rol', 'user')
+                firebase_activo = user_data.get('activo', False)
+                
+                # Reiniciar flags de staff/superuser
+                user.is_staff = False
+                user.is_superuser = False
+                
+                if firebase_rol == 'admin':
+                    user.is_staff = True
+                    user.is_superuser = True
+                elif firebase_rol == 'profesional':
+                    # Usamos is_staff para el acceso al panel del profesional
+                    user.is_staff = True 
+                    
+                # Sincronizar estado 'activo' (importante para el onboarding)
+                user.is_active = firebase_activo
+                
+                # 4. GUARDAR LOS CAMBIOS EN LA BD LOCAL
+                user.save() 
+                return user # ¡Autenticación exitosa y sincronizada!
+            
+            else:
+                return None # Credenciales inválidas (401 de la API)
+
+        except requests.exceptions.RequestException as e:
+            print(f"Error de conexión con la API de Node.js al intentar login: {e}")
             return None
         
     def get_user(self, user_id):

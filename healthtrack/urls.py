@@ -12,4 +12,5 @@ urlpatterns = [
     path('home/', include('home.urls')),
     path('habitos/', include('seguimiento.urls')),
     path('', redirect_to_login),  # Redirige la raíz al login
+    path('admin_panel/', include('admin_panel.urls')), 
 ]

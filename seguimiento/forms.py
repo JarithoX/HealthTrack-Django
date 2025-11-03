@@ -15,17 +15,17 @@ class HabitoForm(forms.Form):
 class HabitoDefinicionForm(forms.Form):
     nombre = forms.CharField(label='Nombre del Hábito', max_length=100, 
                              widget=forms.TextInput(attrs={'placeholder': 'Ej: Correr 5K, Leer 10 páginas'}))
-    
+    #Modificar nombres 
     TIPO_MEDICION_CHOICES = [
         ('Numero entero', 'Número Entero (Ej: Pasos, Minutos, Páginas)'),
-        ('Binario', 'Completado / No Completado (Ej: Meditar, Tomar medicina)'),
+        ('Booleano', 'Completado / No Completado.'),   #Verificar que siempre se inicialice el booleano en FALSE (no comnpletado)
         ('Flotante', 'Decimal (Ej: Litros de agua, Horas de sueño)'),
     ]
-    tipo_medicion = forms.ChoiceField(label='Tipo de Medición', choices=TIPO_MEDICION_CHOICES, 
+    tipo_medicion = forms.ChoiceField(label='Tipo de Medición', initial='Numero entero', choices=TIPO_MEDICION_CHOICES, 
                                       widget=forms.Select(attrs={'class': 'form-select'}))
     
     meta = forms.CharField(label='Meta o Valor Objetivo', max_length=50,
-                           widget=forms.TextInput(attrs={'placeholder': 'Ej: 5000, 1 (si es Binario), 1.5'}))
+                           widget=forms.TextInput(attrs={'placeholder': 'Ej: 5000, 1, 1.5'}))
     
     frecuencia = forms.CharField(label='Frecuencia', initial='Diaria', 
                                  widget=forms.TextInput(attrs={'placeholder': 'Ej: Diaria, Lunes y Jueves'}))

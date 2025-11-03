@@ -22,32 +22,14 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            username = request.user.username
-            # 🚨 LÓGICA DE ONBOARDING POST-LOGIN 🚨
-            try:
-                # 1. Consultar el perfil del usuario a la API de Node.js/Firestore
-                resp = requests.get(f"{API_USUARIOS_URL}/username/{username}")
-                
-                if resp.status_code == 200:
-                    user_data = resp.json()
-                    is_active = bool(user_data.get('activo'))  # asegura booleano
+            # 🚨 LÓGICA DE ONBOARDING POST-LOGIN - USANDO EL CAMPO LOCAL user.is_active🚨
+            
+            if not user.is_active:
+                    messages.warning(request, "Bienvenido. Completa tu perfil.")
+                    return redirect('home:completar_perfil')   
+            #Si is_active es True, va al home 
+            return redirect('home:index') 
 
-                    if not is_active:
-                        messages.warning(request, "Bienvenido. Completa tu perfil.")
-                        return redirect('home:completar_perfil')
-                    
-                    return redirect('home:index')
-                else:
-                    # Si la API responde con error (ej. 404, 500, etc.), forzamos el onboarding por seguridad.
-                    messages.warning(request, "Error de verificación de perfil con la API. Completa tu perfil.")
-                    return redirect('home:completar_perfil')
-                
-            except requests.RequestException:
-                # Si NO HAY CONEXIÓN, forzamos el onboarding
-                # Opcional: Podrías forzar el logout o mostrar una plantilla de error de servicio.
-                messages.warning(request, "Error de conexión con la API. Intenta más tarde.")
-                return redirect('home:completar_perfil')
-        
     messages.error(request, 'Nombre de usuario o contraseña incorrectos.')
     return render(request, 'account/login.html')
 

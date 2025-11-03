@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">{{ panel_title }}</h1>
+    <p>¡Bienvenido, {{ request.user.username }}! Tienes permisos de administrador.</p>
+    
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total Usuarios</h5>
+                    <p class="card-text fs-3">{{ total_usuarios }}</p>
+                    <a href="{% url 'admin_panel:listar_usuarios' %}" class="btn btn-light btn-sm">Ver Usuarios</a>
+                </div>
+            </div>
+        </div>
+        </div>
+</div>
+{% endblock %}
