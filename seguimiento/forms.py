@@ -1,17 +1,8 @@
 
 from django import forms
 
-class HabitoForm(forms.Form):
-
-    calorias = forms.IntegerField(label="Calorías", min_value=0)
-    pasos = forms.IntegerField(label="Pasos", min_value=0)
-    horas_sueno = forms.FloatField(label="Horas de Sueño", min_value=0, max_value=24)
-    litros_agua = forms.FloatField(label="Litros de Agua", min_value=0)
-    comentario = forms.CharField(label="Comentario", widget=forms.Textarea, required=False)
-   
 #Propósito: Crear o editar la meta del hábito. 
 #Es el formulario que el usuario llena una sola vez 
-#al crear un nuevo hábito (ej. "Quiero correr 5 km diarios").
 class HabitoDefinicionForm(forms.Form):
     nombre = forms.CharField(label='Nombre del Hábito', max_length=100, 
                              widget=forms.TextInput(attrs={'placeholder': 'Ej: Correr 5K, Leer 10 páginas'}))
@@ -34,7 +25,6 @@ class HabitoDefinicionForm(forms.Form):
 # todos los días para registrar su progreso.
 #(Nota: id_habito_def, fecha y id_usuario se añadirán automáticamente
 # en la vista de Django antes de enviarlos a la API).
- 
 class HabitoRegistroForm(forms.Form):
     # Este campo será dinámico. En la vista, lo ajustarás según el 'tipo_medicion' del hábito.
     valor_registrado = forms.CharField(label='Valor de Hoy', required=True) 
