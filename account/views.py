@@ -69,7 +69,7 @@ def register_view(request):
         # Llamada a tu API Node → Firestore
         try:
             # Puedes usar API_USUARIOS_URL definida arriba o la de settings.
-            api_base = getattr(settings, 'API_BASE_URL', 'http://localhost:3000/api')
+            api_base = getattr(settings, 'API_BASE_URL', 'http://localhost:3000/api') #Configurada en settings.py
             resp = requests.post(f"{api_base}/usuarios", json=data, timeout=10)
             
         except requests.exceptions.RequestException as e:

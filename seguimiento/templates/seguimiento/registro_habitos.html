@@ -23,7 +23,7 @@
                     Ingresa tus métricas de hoy
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{% url 'habitos_registrar' %}">
+                    <form method="POST" action="{% url 'habitos:habitos_registrar' %}">
                         {% csrf_token %} 
                         
                         {% for field in form %}

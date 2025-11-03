@@ -49,4 +49,4 @@ cd .\entorno\Scripts\
 
 ```powershell
 python manage.py runserver
-```ñl
+```

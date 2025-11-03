@@ -21,12 +21,12 @@ def completar_perfil_view(request):
             
             # 🚨 Clave: Aquí estamos usando el username como ID de Firestore.
             # Esto funciona si así lo tienes mapeado en Node.js
-            user_id = request.user.username 
+            username = request.user.username 
             
             try:
                 # 1. Llamada al endpoint PUT de Node.js (que debes crear)
                 resp = requests.put(
-                    f"{API_BASE_URL}/usuarios/perfil/{user_id}", 
+                    f"{API_BASE_URL}/usuarios/perfil/{username}", 
                     json=data, 
                     timeout=10
                 )

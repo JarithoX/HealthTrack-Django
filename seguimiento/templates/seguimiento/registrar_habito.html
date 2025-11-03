@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Registro de Hábitos Diarios{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Registro Diario: {{ fecha_actual|date:"d M, Y" }}</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if habitos %}
+        <div class="row">
+            {% for habito in habitos %}
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ habito.nombre }}</h5>
+                            <p class="card-text text-muted">
+                                Meta: {{ habito.meta }} / {{ habito.tipo_medicion }} <br>
+                                Frecuencia: {{ habito.frecuencia }}
+                            </p>
+                            <hr>
+
+                            <form method="post">
+                                {% csrf_token %}
+
+                                <input type="hidden" name="id_habito_def" value="{{ habito.id }}">
+                                
+                                {% if habito.tipo_medicion == 'Binario' %}
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="binario-{{ forloop.counter }}" 
+                                               name="valor_registrado" value="1" role="switch">
+                                        <label class="form-check-label" for="binario-{{ forloop.counter }}">Completado</label>
+                                    </div>
+                                {% else %}
+                                    <div class="mb-3">
+                                        <label for="valor-{{ forloop.counter }}" class="form-label">Valor registrado hoy ({{ habito.tipo_medicion }})</label>
+                                        <input type="number" class="form-control" id="valor-{{ forloop.counter }}" 
+                                               name="valor_registrado" required
+                                               {% if habito.tipo_medicion == 'Flotante' %}step="0.1"{% endif %}>
+                                    </div>
+                                {% endif %}
+
+                                <div class="mb-3">
+                                    <label for="comentario-{{ forloop.counter }}" class="form-label">Comentario (Opcional)</label>
+                                    <textarea class="form-control" id="comentario-{{ forloop.counter }}" name="comentario" rows="1"></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-sm btn-success w-100">Registrar Hoy</button>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-warning text-center">
+            Aún no tienes hábitos registrados. <a href="{% url 'habitos:crear_habito' %}">Crea tu primer hábito aquí.</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
