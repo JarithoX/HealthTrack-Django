@@ -18,9 +18,8 @@ def completar_perfil_view(request):
         form = PerfilConfigForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data # Datos limpios y válidos
-            
+            data['activo'] = True #Para que vea solo una vez el onboarding
             # 🚨 Clave: Aquí estamos usando el username como ID de Firestore.
-            # Esto funciona si así lo tienes mapeado en Node.js
             username = request.user.username 
             
             try:

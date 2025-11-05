@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ panel_title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger shadow-lg">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">⚠️ ¡Confirmar Eliminación!</h3>
+                </div>
+                <div class="card-body text-center">
+                    
+                    <p class="lead">¿Estás absolutamente seguro de que deseas eliminar permanentemente al usuario:</p>
+                    <h4 class="text-danger fw-bold mb-4">{{ usuario.username|upper }}</h4>
+                    
+                    <p class="mb-4">Esta acción no se puede deshacer. Se eliminarán los datos de Firebase y el registro local de Django.</p>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg">Sí, Eliminar Permanentemente</button>
+                            <a href="{% url 'admin_panel:listar_usuarios' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
