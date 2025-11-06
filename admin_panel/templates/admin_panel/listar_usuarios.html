@@ -33,7 +33,7 @@
                     <span class="badge bg-info text-dark">{{ user.firebase_rol|upper }}</span>
                 </td> 
                 <td>
-                    {% if user.is_active %}
+                    {% if user.activo == 'Sí' %}
                         <span class="badge bg-primary">Sí</span>
                     {% else %}
                         <span class="badge bg-warning">No</span>
@@ -41,8 +41,7 @@
                 </td>
                 <td>
                     <a href="{% url 'admin_panel:editar_usuario' username=user.username %}" class="btn btn-sm btn-info">Editar Rol</a>
-                    <a href="{% url 'admin_panel:eliminar_usuario' username=user.username %}" class="btn btn-sm btn-danger" 
-                        onclick="return confirm('¿Estás seguro de que quieres eliminar a {{ user.username }}?');">Eliminar</a>
+                    <a href="{% url 'admin_panel:eliminar_usuario' username=user.username %}" class="btn btn-sm btn-danger">Eliminar</a>
                 </td>
             </tr>
             {% endfor %}

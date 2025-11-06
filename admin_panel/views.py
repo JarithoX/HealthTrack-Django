@@ -47,18 +47,19 @@ def listar_usuarios_view(request):
         messages.error(request, "Error de conexión con la API al listar usuarios.")
         data_firebase = []
 
-    # 2. Mapeamos el objeto completo de Firebase
+    # 2. Crea un diccionario de mapeo {username: data_completa}
     firebase_map = {user.get('username'): user for user in data_firebase if user.get('username')}
     # 3. Obtener todos los usuarios locales de Django
     usuarios_locales = User.objects.exclude(username=request.user.username).order_by('username')
     # 4. Combinar datos: Crear una nueva lista de DICCIONARIOS
     usuarios_combinados = []
+
     for user_local in usuarios_locales:
         username = user_local.username
         firebase_data = firebase_map.get(username, {})
         
         firebase_rol = firebase_data.get('rol', '-')
-        is_activo_firebase = firebase_data.get('activo', False)
+        is_activo_firebase = firebase_data.get('activo','-')
         
         combinado = {
             'username': username,
@@ -68,7 +69,7 @@ def listar_usuarios_view(request):
             # Datos de Firebase
             'firebase_rol': firebase_rol,
             
-            'activo': 'Sí' if is_activo_firebase in [True, 'true'] else 'No',
+            'activo': 'Sí' if str(is_activo_firebase).lower() == 'true' else 'No',
         }
         
         usuarios_combinados.append(combinado)
@@ -96,7 +97,7 @@ def editar_usuario_view(request, username):
     # 1. Obtener datos actuales de Firebase (Fuente de la verdad)
     try:
         resp = requests.get(f"{USUARIO_API_URL}/username/{username}", timeout=5)
-        if resp.status_code != 200:
+        if resp.status_code != 200: #sin exito
             messages.error(request, f"No se pudo cargar el perfil de {username} desde Firebase.")
             return redirect('admin_panel:listar_usuarios')
             
@@ -177,15 +178,21 @@ def eliminar_usuario_view(request, username):
                 # 1. Eliminar en Firebase (Node.js API)
                 resp = requests.delete(f"{USUARIO_API_URL}/username/{username}", timeout=5)
 
-                if resp.status_code in [200, 204]: # 200 OK o 204 No Content
-                    
+                if resp.status_code in [200]: # 200 OK 
                     # 2. Eliminar en la BD local de Django
                     usuario_local.delete()
                     
                     messages.success(request, f"Usuario '{username}' eliminado correctamente de Firebase y Django.")
                     return redirect('admin_panel:listar_usuarios')
                 else:
-                    messages.error(request, f"Error API al eliminar usuario (Código: {resp.status_code}).")
+                    if resp.status_code == 404 and usuario_local in User.objects.all():
+                        # Si no existe en Firebase pero sí en Django, eliminar localmente
+                        usuario_local.delete()
+
+                        messages.success(request, f"Usuario '{username}' eliminado correctamente BD-Local Django.")
+                        return redirect('admin_panel:listar_usuarios')
+                    
+                    messages.error(request, f"Error API al eliminar usuario: {usuario_local} (Código: {resp.status_code}).")
                     
         except requests.RequestException:
             messages.error(request, "Error de conexión con la API al intentar eliminar.")

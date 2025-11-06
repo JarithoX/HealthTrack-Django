@@ -4,7 +4,7 @@
 {% block content %}
 <div class="container mt-5">
     <h1 class="mb-4">{{ panel_title }}</h1>
-    <p>¡Bienvenido, {{ request.user.username }}! Tienes permisos de administrador.</p>
+    <p>¡Bienvenido, <strong>{{ request.user.username }}</strong>! Tienes permisos de administrador.</p>
     
     <div class="row">
         <div class="col-md-4">

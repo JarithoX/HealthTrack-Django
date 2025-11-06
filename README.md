@@ -45,7 +45,7 @@ cd .\entorno\Scripts\
 ```powershell
 .\Activate.ps1
 ```
-2.- Volver a la carpeta raiz (cd..) y correr el servidor:
+2.- Volver a la carpeta raiz [cd..] y correr el servidor:
 
 ```powershell
 python manage.py runserver
