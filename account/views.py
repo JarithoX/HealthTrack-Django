@@ -25,7 +25,6 @@ def login_view(request):
             # 🚨 LÓGICA DE ONBOARDING POST-LOGIN - USANDO EL CAMPO LOCAL user.is_active🚨
             
             if not user.is_active:
-                    messages.warning(request, "Bienvenido. Completa tu perfil.")
                     return redirect('home:completar_perfil')   
             #Si is_active es True, va al home 
             return redirect('home:index') 
