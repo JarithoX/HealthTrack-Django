@@ -15,7 +15,7 @@ class FirestoreAuthBackend(BaseBackend):
     def authenticate(self, request, username=None, password=None, **kwargs):
         if not username or not password:
             return None
-
+        
         try:
             # 🚨 1. Llama al endpoint de login en Node.js (que ahora devuelve rol y activo) 🚨
             resp = requests.post(
@@ -26,7 +26,7 @@ class FirestoreAuthBackend(BaseBackend):
             
             if resp.status_code == 200:
                 user_data = resp.json()
-                # 2. 2. Obtener o crear el usuario local de Django (get_or_create)
+                # 2. Obtener o crear el usuario local de Django (get_or_create)
                 # Usamos el email real si la API lo devuelve, si no, uno temporal.
                 user, created = User.objects.get_or_create(
                     username=username, 

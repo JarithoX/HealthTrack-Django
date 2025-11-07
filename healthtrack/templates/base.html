@@ -11,11 +11,15 @@
 </head>
 <body class="d-flex flex-column h-100">
     
-    {% include 'includes/nav.html' %} 
+    {% if user.is_authenticated %}
+        {% include NAV_TEMPLATE %}
+    {% else %}
+        {% include 'includes/nav.html' %} 
+    {% endif %} 
 
     <main class="flex-grow-1">
         <div class="container"> 
-            {% block content %}
+            {% block content %} - { F}
             {% endblock %}
         </div>
     </main>

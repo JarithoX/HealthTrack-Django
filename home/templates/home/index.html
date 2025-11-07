@@ -3,6 +3,73 @@
 {% block title %}Inicio - Health Track{% endblock %} 
 
 {% block content %}
-    <h1>{{ titulo }}</h1>
-    <p>{{ descripcion }}</p>
-    {% endblock %}
+
+    <div class="p-5 text-center text-white mb-3 rounded-3" style="background-color: var(--bs-primary);">
+        <h1 class="display-4 fw-bold">
+            ¡Bienvenido de vuelta, <span class="text-warning">{{ nombre_usuario }}</span>!
+        </h1>
+        <p class="lead mb-4">
+            Tu salud es tu mayor inversión. ¡Empecemos a construirla con pequeños hábitos hoy!
+        </p>
+        <a href="{% url 'habitos:registro_habito' %}" class="btn btn-warning btn-lg px-4">
+            Revisar Mis Hábitos de Hoy
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            
+            <h2 class="mt-4 mb-3">✅ Empieza rápido: Agrega hábitos comunes</h2>
+            <div class="row row-cols-1 row-cols-md-4 g-4 mb-5">
+                {% for habito in habitos_predefinidos %}
+                    <div class="col">
+                        <div class="card h-100 shadow-sm border-success">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-success">{{ habito.nombre|default:"Nuevo Hábito" }}</h5>
+                                <p class="card-text text-muted">{{ habito.descripcion|default:"Caminata o ejercicio." }}</p>
+                                <a href="#" class="btn btn-outline-success mt-2 disabled">
+                                    + Añadir a Mis Hábitos
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-muted">No hay hábitos predefinidos disponibles en este momento.</p>
+                {% endfor %}
+            </div>
+
+            <h2 class="mt-4 mb-3">🧠 Consejos Personalizados para ti</h2>
+            <div class="alert alert-info shadow-sm" role="alert">
+                <i class="bi bi-person-check-fill me-2"></i>
+                {% if perfil_data.peso and perfil_data.altura %}
+                    Basado en tus datos de peso ({{ perfil_data.peso }} kg) y altura ({{ perfil_data.altura }} cm),
+                    recuerda que mantener un equilibrio hídrico es clave. ¡Intenta beber más de **2 litros de agua** hoy!
+                {% else %}
+                    ¡Te invitamos a completar tu perfil para recibir consejos más específicos y personalizados!
+                    <a href="{% url 'home:completar_perfil' %}" class="alert-link">Completar Perfil</a>
+                {% endif %}
+            </div>
+            
+            <h2 class="mt-4 mb-3">🧑‍⚕️ Conecta con Profesionales</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+                {% for prof in profesionales %}
+                    <div class="col">
+                        <div class="card h-100 shadow-sm border-secondary">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ prof.nombre }}</h5>
+                                <p class="card-text text-muted">{{ prof.condiciones_medicas|default:"Especialista en nutrición." }}</p>
+                                <a href="#" class="btn btn-outline-secondary mt-2 disabled">
+                                    Ver Perfil
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-muted">No se encontraron profesionales activos en el sistema.</p>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+
+{% endblock content %}

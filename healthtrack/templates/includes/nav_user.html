@@ -2,7 +2,7 @@
     <div class="container-fluid">
         
         <a class="navbar-brand d-flex align-items-center" href="{% url 'home:index' %}">
-            <span class="fs-4 fw-bold">HealthTrack</span>
+            <span class="fs-4 fw-bold">HealthTrack - USER</span>
             </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -15,9 +15,17 @@
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="{% url 'home:index' %}">Inicio</a>
                     </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'habitos:registro_habito' %}">Mis Hábitos</a>
+                    </li>
 
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'habitos:crear_habito' %}">Hábitos</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home:index' %}">Mi Progreso</a>
                     </li>
                     
                     <li class="nav-item">

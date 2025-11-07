@@ -6,6 +6,18 @@ from .forms import PerfilConfigForm
 
 API_BASE_URL = 'http://localhost:3000/api' 
 
+def get_api_data(endpoint):
+    """Función auxiliar para consultar la API."""
+    try:
+        url = f"{API_BASE_URL}{endpoint}"
+        resp = requests.get(url, timeout=5)
+        if resp.status_code == 200:
+            return resp.json()
+    except requests.RequestException:
+        # En producción, esto debería loguearse o mostrarse como un error de conexión
+        pass
+    return []
+
 # VISTA DE ONBOARDING
 @login_required
 def completar_perfil_view(request):
@@ -92,10 +104,32 @@ def completar_perfil_view(request):
 # VISTA DE home/index.html (Si el perfil ya está completo)
 @login_required
 def index(request):
-    # Aquí iría la lógica para consultar las métricas y hábitos del usuario
-    context = {
-        'titulo': 'Dashboard Principal',
-        'descripcion': 'Revisa tu progreso diario y las estadísticas.',
-    }
-    return render(request, 'home/index.html', context)
+    username = request.user.username
 
+    # 1. Obtener datos del perfil del usuario (para consejos personalizados)
+    # Endpoint: GET /api/usuarios/username/:username (asumiendo que devuelve {nombre, peso, altura, etc.})
+    perfil_data = get_api_data(f"/usuarios/username/{username}")
+    
+    # 2. Obtener Hábitos Predefinidos (para la sección de Acción Rápida)
+    # Endpoint: GET /api/habitos/predefinidos (ASUMIDO, NECESITAS CREAR ESTE ENDPOINT)
+    habitos_predefinidos = get_api_data("/habitos/predefinidos")
+    
+    # Limitamos a 4 hábitos para el dashboard
+    habitos_predefinidos_top = habitos_predefinidos[:4] 
+
+    # 3. Obtener Listado de Profesionales (para la sección Social)
+    # Endpoint: GET /api/usuarios/profesionales (ASUMIDO, NECESITAS CREAR ESTE ENDPOINT)
+    profesionales = get_api_data("/usuarios/profesionales")
+    profesionales_top = profesionales[:3] # Limitamos a 3
+
+    context = {
+        'username': username,
+        #'nombre_usuario': perfil_data.get('nombre', username), # Usar el nombre si existe
+        
+        # Datos para las secciones del home
+        'perfil_data': perfil_data,
+        'habitos_predefinidos': habitos_predefinidos_top,
+        'profesionales': profesionales_top,
+    }
+
+    return render(request, 'home/index.html', context)
