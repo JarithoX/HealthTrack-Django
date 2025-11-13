@@ -26,6 +26,12 @@ class FirestoreAuthBackend(BaseBackend):
             
             if resp.status_code == 200:
                 user_data = resp.json()
+                #Token devuelto por la api
+                token = user_data.get('token') 
+                print(token)
+                if token and request:
+                    request.session['jwt_token'] = token # Guarda el token en la sesión de Django
+
                 # 2. Obtener o crear el usuario local de Django (get_or_create)
                 # Usamos el email real si la API lo devuelve, si no, uno temporal.
                 user, created = User.objects.get_or_create(

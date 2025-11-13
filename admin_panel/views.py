@@ -164,6 +164,18 @@ def editar_usuario_view(request, username):
 @login_required
 @user_passes_test(is_admin_or_staff, login_url='/account/login')
 def eliminar_usuario_view(request, username):
+
+    jwt_token = request.session.get('jwt_token')
+    
+    if not jwt_token:
+        messages.error(request, "Error de seguridad: Token no encontrado. Vuelve a iniciar sesión.")
+        return redirect('logout') 
+
+    # diccionario de headers para incluir el token 
+    headers = {
+        'x-token': jwt_token,  # El nombre del header que el Middleware de Node.js espera
+        'Content-Type': 'application/json' 
+    }
     
     # Restricción: No se permite la auto-eliminación
     if request.user.username == username:
@@ -176,14 +188,17 @@ def eliminar_usuario_view(request, username):
         try:
             with transaction.atomic():
                 # 1. Eliminar en Firebase (Node.js API)
-                resp = requests.delete(f"{USUARIO_API_URL}/username/{username}", timeout=5)
+                resp = requests.delete(f"{USUARIO_API_URL}/username/{username}", headers=headers, timeout=5)
 
                 if resp.status_code in [200]: # 200 OK 
                     # 2. Eliminar en la BD local de Django
                     usuario_local.delete()
-                    
                     messages.success(request, f"Usuario '{username}' eliminado correctamente de Firebase y Django.")
                     return redirect('admin_panel:listar_usuarios')
+                
+                elif resp.status_code == 401:
+                    messages.error(request, "No tienes permiso (Token no válido o expirado).")
+
                 else:
                     if resp.status_code == 404 and usuario_local in User.objects.all():
                         # Si no existe en Firebase pero sí en Django, eliminar localmente
