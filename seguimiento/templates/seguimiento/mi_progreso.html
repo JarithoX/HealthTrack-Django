@@ -1,0 +1,76 @@
+{% extends 'base.html' %}  {# cambia si tu layout base se llama distinto #}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Mi Progreso</h2>
+  <p class="text-muted">Resumen de tus hábitos registrados por día.</p>
+
+  <div class="my-3" style="max-width: 800px;">
+    <canvas id="progresoChart"></canvas>
+  </div>
+
+  <hr>
+
+  <h4>Registros recientes</h4>
+  {% if registros %}
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Hábito</th>
+            <th>Valor</th>
+            <th>Meta</th>
+            <th>Tipo</th>
+            <th>Comentario</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in registros %}
+          <tr>
+            <td>{{ r.fecha|default:"-"|slice:":10" }}</td>
+            <td>{{ r.nombre_habito|default:"-" }}</td>
+            <td>{{ r.valor_registrado|default:"-" }}</td>
+            <td>{{ r.meta|default:"-" }}</td>
+            <td>{{ r.tipo_medicion|default:"-" }}</td>
+            <td>{{ r.comentario|default:"-" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p>No hay registros aún. ¡Empieza a registrar tus hábitos!</p>
+  {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const labels = {{ labels_json|safe }};
+  const data = {{ data_json|safe }};
+
+  const ctx = document.getElementById('progresoChart').getContext('2d');
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Hábitos registrados por día',
+        data: data,
+        tension: 0.3
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 1
+          }
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

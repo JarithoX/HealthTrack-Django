@@ -131,3 +131,4 @@ API_BASE_URL = "http://localhost:3000/api"
 AUTHENTICATION_BACKENDS = [
     'account.backend.FirestoreAuthBackend',
 ]
+API_URL = "http://localhost:3000/api"
