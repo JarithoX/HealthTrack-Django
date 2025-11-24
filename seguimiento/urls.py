@@ -8,4 +8,5 @@ urlpatterns = [
     path('crear_habito/', views.crear_habito_view, name='crear_habito'),
     path('registro_habito/', views.registro_habitos_view, name='registro_habito'),
     path('mi_progreso/', views.mi_progreso_view, name='mi_progreso'),
+    path('eliminar/<str:id_habito>/', views.eliminar_habito_view, name='eliminar_habito'),
 ]

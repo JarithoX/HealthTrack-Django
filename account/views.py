@@ -65,6 +65,8 @@ def register_view(request):
                 if not User.objects.filter(username=data['username']).exists():
                     User.objects.create_user(
                         username=data['username'],
+                        first_name=data['nombre'],
+                        last_name=data['apellido'],
                         email=data['email'],
                         # ⚠️ Importante: Usar la contraseña en texto plano para crear el usuario local.
                         # El login_view de Django la hasheará automáticamente.

@@ -5,66 +5,88 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1 class="text-center mb-4">Registro Diario: {{ fecha_actual|date:"d M, Y" }}</h1>
+    
+    <h1 class="text-center mb-4">
+        Registro Diario 
+        {% if fecha_actual %}
+            <small class="text-muted">({{ fecha_actual }})</small>
+        {% endif %}
+    </h1>
 
     {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}" role="alert">
-                {{ message }}
-            </div>
-        {% endfor %}
+        <div class="messages mb-4">
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
     {% endif %}
 
+    <div class="text-end mb-3">
+        <a href="{% url 'habitos:crear_habito' %}" class="btn btn-primary">
+            + Crear Nuevo Hábito
+        </a>
+    </div>
+
     {% if habitos %}
-        <div class="row">
+        <div class="row"> 
             {% for habito in habitos %}
-                <div class="col-md-6 mb-4">
-                    <div class="card shadow-sm h-100">
+            
+                <div class="col-md-6"> 
+                    <div class="card mb-3">
                         <div class="card-body">
                             <h5 class="card-title">{{ habito.nombre }}</h5>
-                            <p class="card-text text-muted">
-                                Meta: {{ habito.meta }} / {{ habito.tipo_medicion }} <br>
-                                Frecuencia: {{ habito.frecuencia }}
-                            </p>
-                            <hr>
+                            <p class="card-text">Meta: {{ habito.meta }} / {{ habito.tipo_medicion }}</p>
 
-                            <form method="post">
+                            <form method="POST" action="{% url 'habitos:registro_habito' %}">
                                 {% csrf_token %}
-
+                                
                                 <input type="hidden" name="id_habito_def" value="{{ habito.id }}">
+                                <input type="hidden" name="fecha_registro" value="{{ fecha_actual }}">
                                 
                                 {% if habito.tipo_medicion == 'Binario' %}
                                     <div class="form-check form-switch mb-3">
-                                        <input class="form-check-input" type="checkbox" id="binario-{{ forloop.counter }}" 
-                                               name="valor_registrado" value="1" role="switch">
-                                        <label class="form-check-label" for="binario-{{ forloop.counter }}">Completado</label>
+                                        <input class="form-check-input" type="checkbox" id="flexSwitchCheck-{{ habito.id }}" 
+                                               name="valor_registrado" value="1">
+                                        <label class="form-check-label" for="flexSwitchCheck-{{ habito.id }}">
+                                            Completado
+                                        </label>
                                     </div>
                                 {% else %}
                                     <div class="mb-3">
-                                        <label for="valor-{{ forloop.counter }}" class="form-label">Valor registrado hoy ({{ habito.tipo_medicion }})</label>
-                                        <input type="number" class="form-control" id="valor-{{ forloop.counter }}" 
-                                               name="valor_registrado" required
-                                               {% if habito.tipo_medicion == 'Flotante' %}step="0.1"{% endif %}>
+                                        <label for="valor-{{ habito.id }}" class="form-label">
+                                            Valor ({{ habito.tipo_medicion }})
+                                        </label>
+                                        <input type="number" step="any" class="form-control" id="valor-{{ habito.id }}" 
+                                               name="valor_registrado" placeholder="Ingresa el valor" required>
                                     </div>
                                 {% endif %}
 
                                 <div class="mb-3">
-                                    <label for="comentario-{{ forloop.counter }}" class="form-label">Comentario (Opcional)</label>
-                                    <textarea class="form-control" id="comentario-{{ forloop.counter }}" name="comentario" rows="1"></textarea>
+                                    <input type="text" class="form-control" name="comentario" placeholder="Comentario (opcional)">
                                 </div>
-
-                                <button type="submit" class="btn btn-sm btn-success w-100">Registrar Hoy</button>
+                                
+                                <button type="submit" class="btn btn-primary">
+                                    Registrar Avance
+                                </button>
+                                
+                                <a href="{% url 'habitos:eliminar_habito' habito.id %}" class="btn btn-outline-danger btn-sm float-end" 
+                                   onclick="return confirm('¿Estás seguro de que quieres eliminar este hábito?')">
+                                    🗑️ Eliminar
+                                </a>
+                                
                             </form>
-
                         </div>
                     </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <div class="alert alert-warning text-center">
-            Aún no tienes hábitos registrados. <a href="{% url 'habitos:crear_habito' %}">Crea tu primer hábito aquí.</a>
+                </div> {% endfor %}
+        </div> {% else %}
+        <div class="alert alert-info text-center p-5">
+            <h4>¡Aún no tienes hábitos configurados!</h4>
+            <p>Comienza definiendo qué quieres mejorar hoy.</p>
+            <a href="{% url 'habitos:crear_habito' %}" class="btn btn-primary mt-3">Crear mi primer hábito</a>
         </div>
     {% endif %}
-</div>
+    </div>
 {% endblock %}
