@@ -11,36 +11,38 @@
                     <h3 class="mb-0">{{ panel_title }}</h3>
                 </div>
                 <div class="card-body">
-                    
+
                     <p><strong>Username:</strong> {{ usuario.username }}</p>
                     <p><strong>Email:</strong> {{ usuario.email }}</p>
-                    <p class="mb-4"><strong>Rol actual en Firebase:</strong> 
+                    <p class="mb-4"><strong>Rol actual:</strong>
                         <span class="badge bg-secondary">{{ current_rol|upper }}</span>
                     </p>
 
                     {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}" role="alert">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
+                    {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}"
+                        role="alert">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
                     {% endif %}
 
                     <form method="post">
                         {% csrf_token %}
-                        
+
                         <div class="mb-3">
                             {{ form.rol.label_tag }}
-                            {{ form.rol }} 
+                            {{ form.rol }}
                             {% if form.rol.errors %}
-                                <div class="text-danger small">{{ form.rol.errors }}</div>
+                            <div class="text-danger small">{{ form.rol.errors }}</div>
                             {% endif %}
                         </div>
-                        
+
 
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-success btn-lg">💾 Guardar Cambios de Rol</button>
-                            <a href="{% url 'admin_panel:listar_usuarios' %}" class="btn btn-secondary">Cancelar y Volver</a>
+                            <a href="{% url 'admin_panel:listar_usuarios' %}" class="btn btn-secondary">Cancelar y
+                                Volver</a>
                         </div>
                     </form>
 
