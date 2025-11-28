@@ -27,7 +27,7 @@ def crear_habito_view(request):
     token = request.session.get('jwt_token')
     if not token:
         messages.error(request, "Sesión expirada. Inicia sesión nuevamente.")
-        return redirect('login')
+        return redirect('account:login')
 
     if request.method == 'POST':
         form = HabitoDefinicionForm(request.POST)
@@ -76,7 +76,7 @@ def registro_habitos_view(request):
     token = request.session.get('jwt_token')
     if not token:
         messages.error(request, "Sesión expirada. Inicia sesión nuevamente.")
-        return redirect('login')
+        return redirect('account:login')
     
     headers = {
         "Authorization": f"Bearer {token}",
@@ -169,7 +169,7 @@ def mi_progreso_view(request):
     token = request.session.get('jwt_token')
     if not token:
         messages.error(request, "Sesión expirada. Inicia sesión nuevamente.")
-        return redirect('login')
+        return redirect('account:login')
 
     headers = {
         "Authorization": f"Bearer {token}",
@@ -243,7 +243,7 @@ def eliminar_habito_view(request, id_habito):
     token = request.session.get('jwt_token')
     if not token:
         messages.error(request, "Sesión expirada.")
-        return redirect('login')
+        return redirect('account:login')
     
     headers = {
         "Authorization": f"Bearer {token}",

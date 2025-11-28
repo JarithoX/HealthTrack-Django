@@ -122,7 +122,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # URL al que redirige @login_required cuando el usuario no está autenticado
-LOGIN_URL = '/account/login/'
+LOGIN_URL = 'account:login'
 
 # Hacer que la sesión expire al cerrar el navegador (para pedir login de nuevo)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True

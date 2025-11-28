@@ -106,17 +106,6 @@ def completar_perfil_view(request):
 # VISTA DE home/index.html (Si el perfil ya está completo)
 @login_required
 def index(request):
-    # --- DEBUGGING ---
-    # Esto imprimirá en la terminal de Django (donde corre el servidor)
-    # todos los atributos que tiene tu objeto usuario actual.
-    print("\n--- DATOS DEL USUARIO EN SESIÓN ---")
-    print(f"Diccionario del objeto user: {request.user.__dict__}")
-    
-    # También veamos qué hay guardado en la sesión cruda por si acaso
-    print(f"Datos crudos en sesión: {request.session.get('user_session_data')}")
-    print("-----------------------------------\n")
-    # -----------------
-
     username = request.user.username
 
     # 1. Obtener datos del perfil del usuario (para consejos personalizados)
