@@ -1,80 +1,78 @@
 from django.contrib.auth.backends import BaseBackend
-from django.contrib.auth.models import User
-from django.contrib.auth import get_user_model
 from django.conf import settings
 import requests
-
-User = get_user_model()
+from types import SimpleNamespace
 
 API_BASE_URL = getattr(settings, 'API_BASE_URL', 'http://localhost:3000/api')
 
-class FirestoreAuthBackend(BaseBackend):
+class NodeAPIBackend(BaseBackend):
     """
-    Backend personalizado para validar credenciales y sincronizar permisos con la API Node.js/Firestore.
+    Backend que actúa como proxy: recibe usuario/pass y los valida contra la API de Node.js.
     """
     def authenticate(self, request, username=None, password=None, **kwargs):
-        if not username or not password:
+        # Permitir 'identifier' o 'username'
+        identifier = kwargs.get('identifier', username)
+
+        if not identifier or not password:
             return None
         
         try:
-            # 🚨 1. Llama al endpoint de login en Node.js (que ahora devuelve rol y activo) 🚨
+            # POST a la API de Node.js
             resp = requests.post(
-                f"{API_BASE_URL}/usuarios/login", 
-                json={'username': username, 'password': password},
+                f"{API_BASE_URL}/auth/login", 
+                json={'identifier': identifier, 'password': password}, 
                 timeout=5
             )
-            
+        
+            print(f"DEBUG BACKEND: Respuesta de API Status: {resp.status_code}")
             if resp.status_code == 200:
-                user_data = resp.json()
-                #Token devuelto por la api
-                token = user_data.get('token') 
-                print(token)
-                if token and request:
-                    request.session['jwt_token'] = token # Guarda el token en la sesión de Django
+                data = resp.json()
+                print(f"DEBUG BACKEND: Respuesta de API Data: {data}")
+                
+                # Asumimos que la API devuelve { success: true, token: '...', user: {...} }
+                # O similar. Ajustamos según lo que se espera.
+                # Si la API devuelve el usuario dentro de 'user' o 'usuario'
+                user_payload = data.get('user') or data.get('usuario') or {}
+                token = data.get('token')
+                
+                if not user_payload and token:
+                    # Si solo devuelve token, podríamos necesitar decodificarlo o hacer otra llamada
+                    # Pero por ahora asumimos que viene la info básica
+                    pass
 
-                # 2. Obtener o crear el usuario local de Django (get_or_create)
-                # Usamos el email real si la API lo devuelve, si no, uno temporal.
-                user, created = User.objects.get_or_create(
-                    username=username, 
-                    defaults={'email': user_data.get('email', f"{username}@temp.healthtrack.com")} 
+                # Mapear roles
+                rol = user_payload.get('rol', 'user')
+                es_admin = (rol == 'admin')
+                es_staff = (rol in ['admin', 'profesional'])
+                
+                # Crear objeto usuario temporal
+                user = SimpleNamespace(
+                    is_authenticated=True,
+                    is_anonymous=False,
+                    # IMPORTANTE: is_active depende de si el usuario completó su perfil (campo 'activo' en API)
+                    # Si no existe el campo, asumimos False para forzar onboarding.
+                    is_active=user_payload.get('activo', False), 
+                    is_staff=es_staff,
+                    is_superuser=es_admin,
+                    # username: Nombre visual (sobrenombre)
+                    username=user_payload.get('username') or user_payload.get('nombre') or identifier,
+                    email=user_payload.get('email') or identifier,
+                    first_name=user_payload.get('nombre', ''),
+                    last_name=user_payload.get('apellido', ''),
+                    rol=rol,
+                    # uid: ID técnico de Firebase
+                    uid=user_payload.get('uid'),
+                    token=token,
+                    backend='account.backend.NodeAPIBackend' # Necesario para que Django sepa quién lo autenticó
                 )
-
-                if created:
-                    # Si es nuevo, evitamos el login con contraseña local
-                    user.set_unusable_password() 
-
-                # 3. 🚨 SINCRONIZACIÓN DE ROLES (Mapeo de Firebase a Django Flags) 🚨
-                firebase_rol = user_data.get('rol', 'user')
-                firebase_activo = user_data.get('activo', False)
-                
-                # Reiniciar flags de staff/superuser
-                user.is_staff = False
-                user.is_superuser = False
-                
-                if firebase_rol == 'admin':
-                    user.is_staff = True
-                    user.is_superuser = True
-                elif firebase_rol == 'profesional':
-                    # Usamos is_staff para el acceso al panel del profesional
-                    user.is_staff = True 
-                    
-                # Sincronizar estado 'activo' (importante para el onboarding)
-                user.is_active = firebase_activo
-                
-                # 4. GUARDAR LOS CAMBIOS EN LA BD LOCAL
-                user.save() 
-                return user # ¡Autenticación exitosa y sincronizada!
+                return user
             
-            else:
-                return None # Credenciales inválidas (401 de la API)
+            return None
 
         except requests.exceptions.RequestException as e:
-            print(f"Error de conexión con la API de Node.js al intentar login: {e}")
+            print(f"Error de conexión con la API de Node.js: {e}")
             return None
         
     def get_user(self, user_id):
-        # Necesario para que Django pueda cargar el usuario de la sesión
-        try:
-            return User.objects.get(pk=user_id)
-        except User.DoesNotExist:
-            return None
+        # En este esquema stateless, no recargamos por ID desde DB.
+        return None

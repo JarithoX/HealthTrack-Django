@@ -8,7 +8,7 @@ def redirect_to_login(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('account/', include('account.urls')),
+    path('account/', include('account.urls', namespace='account')),
     path('home/', include('home.urls')),
     path('habitos/', include('seguimiento.urls')),
     path('', redirect_to_login),  # Redirige la raíz al login

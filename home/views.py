@@ -21,7 +21,8 @@ def get_api_data(endpoint):
 # VISTA DE ONBOARDING
 @login_required
 def completar_perfil_view(request):
-    username = request.user.username # estamos usando el username como ID de Firestore. 
+    # Usamos el UID técnico para la API, no el username visual
+    uid = request.user.uid 
 
     # Si el perfil ya está completo, redirige al index
     usuario_activo = request.user.is_active
@@ -38,6 +39,7 @@ def completar_perfil_view(request):
             payload = {k: v for k, v in payload.items() if v not in (None, '', [])} # elimina campos vacíos (None, '', [])                    
             
             # Autenticación con token de sesión (Implementacion futura)
+            print(f"DEBUG HOME: Enviando payload a API: {payload}")
             """"
                         headers = {}
             token = request.session.get('token')
@@ -47,7 +49,7 @@ def completar_perfil_view(request):
             try:
                 # 1. Llamada al endpoint PUT de Node.js
                 resp = requests.put(
-                    f"{API_BASE_URL}/usuarios/perfil/{username}", 
+                    f"{API_BASE_URL}/usuarios/perfil/{uid}", 
                     json = payload, 
                     #headers = headers,  -> Implementacion Token futura
                     timeout = 10
@@ -95,7 +97,7 @@ def completar_perfil_view(request):
     context = {
         'form': form,
         'titulo': 'Completa tu Perfil',
-        'username': username
+        'username': request.user.username # Visual
     }
     
     return render(request, 'home/completar_perfil.html', context)
@@ -104,6 +106,17 @@ def completar_perfil_view(request):
 # VISTA DE home/index.html (Si el perfil ya está completo)
 @login_required
 def index(request):
+    # --- DEBUGGING ---
+    # Esto imprimirá en la terminal de Django (donde corre el servidor)
+    # todos los atributos que tiene tu objeto usuario actual.
+    print("\n--- DATOS DEL USUARIO EN SESIÓN ---")
+    print(f"Diccionario del objeto user: {request.user.__dict__}")
+    
+    # También veamos qué hay guardado en la sesión cruda por si acaso
+    print(f"Datos crudos en sesión: {request.session.get('user_session_data')}")
+    print("-----------------------------------\n")
+    # -----------------
+
     username = request.user.username
 
     # 1. Obtener datos del perfil del usuario (para consejos personalizados)

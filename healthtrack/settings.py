@@ -41,6 +41,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'account.middleware.RemoteUserMiddleware', # Middleware para auth stateless (DEBE ir despues de AuthenticationMiddleware)
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -129,6 +130,6 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 API_BASE_URL = "http://localhost:3000/api"
 
 AUTHENTICATION_BACKENDS = [
-    'account.backend.FirestoreAuthBackend',
+    'account.backend.NodeAPIBackend',
 ]
 API_URL = "http://localhost:3000/api"
