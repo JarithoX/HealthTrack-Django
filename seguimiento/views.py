@@ -1,13 +1,8 @@
-# seguimiento/views.py
-
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.conf import settings
-
-# Importa tus formularios aquí (asumo que se llama forms.py)
-from .forms import HabitoDefinicionForm # Asumo que el formulario es HabitoDefinicionForm
-
+from .forms import HabitoDefinicionForm
 import requests
 from datetime import date
 import json
@@ -24,8 +19,11 @@ HABITO_REGISTRO_URL = f"{API_BASE_URL}/habito-registro"
 @login_required
 def crear_habito_view(request):
     # 🔹 1. Sacar token de la sesión
-    token = request.session.get('jwt_token')
+    user_data = request.session.get('user_session_data', {})
+    token = user_data.get('token')
+
     if not token:
+        print("Sesión expirada. Inicia sesión nuevamente.")
         messages.error(request, "Sesión expirada. Inicia sesión nuevamente.")
         return redirect('account:login')
 
@@ -73,7 +71,8 @@ def registro_habitos_view(request):
     normalized_username = username.lower() 
 
     # 🔹 2. Configuración de Headers (Necesario tanto para GET como para POST)
-    token = request.session.get('jwt_token')
+    user_data = request.session.get('user_session_data', {})
+    token = user_data.get('token')
     if not token:
         messages.error(request, "Sesión expirada. Inicia sesión nuevamente.")
         return redirect('account:login')
@@ -166,7 +165,8 @@ def registro_habitos_view(request):
 def mi_progreso_view(request):
     username = request.user.username.lower()
 
-    token = request.session.get('jwt_token')
+    user_data = request.session.get('user_session_data', {})
+    token = user_data.get('token')
     if not token:
         messages.error(request, "Sesión expirada. Inicia sesión nuevamente.")
         return redirect('account:login')
@@ -236,11 +236,9 @@ def mi_progreso_view(request):
     
 @login_required
 def eliminar_habito_view(request, id_habito):
-    """
-    Elimina una definición de hábito llamando a la API de Node.js
-    """
-    # 1. Configurar Headers (Token)
-    token = request.session.get('jwt_token')
+
+    user_data = request.session.get('user_session_data', {})
+    token = user_data.get('token')
     if not token:
         messages.error(request, "Sesión expirada.")
         return redirect('account:login')

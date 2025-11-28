@@ -24,13 +24,8 @@ class NodeAPIBackend(BaseBackend):
                 timeout=5
             )
         
-            print(f"DEBUG BACKEND: Respuesta de API Status: {resp.status_code}")
             if resp.status_code == 200:
-                data = resp.json()
-                print(f"DEBUG BACKEND: Respuesta de API Data: {data}")
-                
-                # Asumimos que la API devuelve { success: true, token: '...', user: {...} }
-                # O similar. Ajustamos según lo que se espera.
+                data = resp.json()                
                 # Si la API devuelve el usuario dentro de 'user' o 'usuario'
                 user_payload = data.get('user') or data.get('usuario') or {}
                 token = data.get('token')
@@ -49,18 +44,14 @@ class NodeAPIBackend(BaseBackend):
                 user = SimpleNamespace(
                     is_authenticated=True,
                     is_anonymous=False,
-                    # IMPORTANTE: is_active depende de si el usuario completó su perfil (campo 'activo' en API)
-                    # Si no existe el campo, asumimos False para forzar onboarding.
                     is_active=user_payload.get('activo', False), 
                     is_staff=es_staff,
                     is_superuser=es_admin,
-                    # username: Nombre visual (sobrenombre)
                     username=user_payload.get('username') or user_payload.get('nombre') or identifier,
                     email=user_payload.get('email') or identifier,
                     first_name=user_payload.get('nombre', ''),
                     last_name=user_payload.get('apellido', ''),
                     rol=rol,
-                    # uid: ID técnico de Firebase
                     uid=user_payload.get('uid'),
                     token=token,
                     backend='account.backend.NodeAPIBackend' # Necesario para que Django sepa quién lo autenticó
