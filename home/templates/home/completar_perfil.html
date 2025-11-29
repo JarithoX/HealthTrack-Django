@@ -1,84 +1,207 @@
 {% extends 'base.html' %}
-{% load static %}
 
 {% block content %}
-<div class="container py-4">
+{% include 'home/includes/wizard_css.html' %}
+<div class="container py-5">
   <div class="row justify-content-center">
-    <div class="col-lg-7">
+<div class="col-lg-8">
 
-      <h1 class="mb-2 text-center">{{ titulo }} </h1>
-      <p class="text-muted text-center mb-4 fs-6">
-                    Solo un paso más <strong class="text-secondary fst-italic">{{ username }}</strong>, para empezar a monitorear tu salud.
-                </p>
-      {% if messages %}
-        {% for message in messages %}
-          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  <!-- Header Text -->
+  <div class="text-center mb-4">
+    <h2 class="fw-bold text-dark">Configura tu Perfil</h2>
+    <p class="text-muted">Personaliza tu experiencia en HealthTrack</p>
+  </div>
+
+  <!-- Wizard Card -->
+  <div class="wizard-container">
+    <!-- Progress Bar -->
+    <div class="progress-container">
+      <div class="progress-bar-custom" id="progressBar"></div>
+    </div>
+
+    <form method="post" id="wizardForm" novalidate>
+      {% csrf_token %}
+
+      <!-- STEP 1: Biometrics -->
+      <div class="wizard-step active" id="step1">
+        <h3 class="step-title">Cuéntanos sobre ti</h3>
+        <p class="step-subtitle">Estos datos nos ayudan a calcular tus métricas base.</p>
+
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="form-floating">
+              {{ form.peso }}
+              <label for="{{ form.peso.id_for_label }}">Peso (kg)</label>
+            </div>
+            {% if form.peso.errors %}
+            <div class="text-danger small mt-1">{{ form.peso.errors|striptags }}</div>
+            {% endif %}
           </div>
-        {% endfor %}
-      {% endif %}
-
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <form method="post" novalidate>
-            {% csrf_token %}
-
-            <div class="mb-3">
-              <label class="form-label" for="{{ form.peso.id_for_label }}">Peso</label>
-              <div class="input-group">
-                {{ form.peso.as_widget|safe }}
-                <span class="input-group-text">kg</span>
-              </div>
-              {% if form.peso.errors %}
-                <div class="invalid-feedback d-block">{{ form.peso.errors|striptags }}</div>
-              {% endif %}
+          <div class="col-md-6">
+            <div class="form-floating">
+              {{ form.altura }}
+              <label for="{{ form.altura.id_for_label }}">Altura (cm)</label>
             </div>
-
-            <div class="mb-3">
-              <label class="form-label" for="{{ form.altura.id_for_label }}">Altura</label>
-              <div class="input-group">
-                {{ form.altura.as_widget|safe }}
-                <span class="input-group-text">cm</span>
-              </div>
-              {% if form.altura.errors %}
-                <div class="invalid-feedback d-block">{{ form.altura.errors|striptags }}</div>
-              {% endif %}
+            {% if form.altura.errors %}
+            <div class="text-danger small mt-1">{{ form.altura.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          <div class="col-md-6">
+            <div class="form-floating">
+              {{ form.edad }}
+              <label for="{{ form.edad.id_for_label }}">Edad</label>
             </div>
-
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label class="form-label" for="{{ form.genero.id_for_label }}">Género</label>
-                {{ form.genero.as_widget|safe }}
-                {% if form.genero.errors %}
-                  <div class="invalid-feedback d-block">{{ form.genero.errors|striptags }}</div>
-                {% endif %}
-              </div>
-              <div class="col-md-6 mb-3">
-                <label class="form-label" for="{{ form.edad.id_for_label }}">Edad</label>
-                {{ form.edad.as_widget|safe }}
-                {% if form.edad.errors %}
-                  <div class="invalid-feedback d-block">{{ form.edad.errors|striptags }}</div>
-                {% endif %}
-              </div>
+            {% if form.edad.errors %}
+            <div class="text-danger small mt-1">{{ form.edad.errors|striptags }}</div>
+            {% endif %}
+          </div>
+          <div class="col-md-6">
+            <div class="form-floating">
+              {{ form.genero }}
+              <label for="{{ form.genero.id_for_label }}">Género</label>
             </div>
-
-            <div class="mb-3">
-              <label class="form-label" for="{{ form.condiciones_medicas.id_for_label }}">Condiciones Médicas</label>
-              {{ form.condiciones_medicas.as_widget|safe }}
-              {% if form.condiciones_medicas.errors %}
-                <div class="invalid-feedback d-block">{{ form.condiciones_medicas.errors|striptags }}</div>
-              {% endif %}
-            </div>
-
-            <button type="submit" class="btn btn-success w-100">
-              Guardar y Continuar
-            </button>
-          </form>
+            {% if form.genero.errors %}
+            <div class="text-danger small mt-1">{{ form.genero.errors|striptags }}</div>
+            {% endif %}
+          </div>
         </div>
       </div>
 
-    </div>
+      <!-- STEP 2: Routine -->
+      <div class="wizard-step" id="step2">
+        <h3 class="step-title">¿Cómo es tu día?</h3>
+        <p class="step-subtitle">Ajustaremos las notificaciones a tu ritmo de vida.</p>
+
+        <div class="row g-4 justify-content-center">
+          <div class="col-md-8">
+            <label class="form-label fw-bold text-secondary">¿A qué hora te sueles levantar?</label>
+            <div class="time-input-wrapper">
+              <input type="time" name="hora_despertar" class="form-control form-control-lg" required>
+              <i class="bi bi-sun-fill time-icon fs-4"></i>
+            </div>
+          </div>
+          <div class="col-md-8">
+            <label class="form-label fw-bold text-secondary">¿A qué hora suele acabar tu día?</label>
+            <div class="time-input-wrapper">
+              <input type="time" name="hora_dormir" class="form-control form-control-lg" required>
+              <i class="bi bi-moon-stars-fill time-icon fs-4"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3: Goals -->
+      <div class="wizard-step" id="step3">
+        <h3 class="step-title">¿Qué quieres lograr?</h3>
+        <p class="step-subtitle">Elige tu objetivo principal para enfocarnos en ello.</p>
+
+        <div class="row g-3">
+          <!-- Goal 1 -->
+          <div class="col-6 col-md-4">
+            <label class="goal-card-label w-100">
+              <input type="checkbox" name="objetivos" value="vivir_saludable" class="goal-radio d-none" required>
+              <div class="goal-card">
+                <i class="bi bi-heart-pulse-fill goal-icon"></i>
+                <span class="goal-text">Vivir más saludable</span>
+              </div>
+            </label>
+          </div>
+          <!-- Goal 2 -->
+          <div class="col-6 col-md-4">
+            <label class="goal-card-label w-100">
+              <input type="checkbox" name="objetivos" value="aliviar_presion" class="goal-radio d-none">
+              <div class="goal-card">
+                <i class="bi bi-flower1 goal-icon"></i>
+                <span class="goal-text">Aliviar estrés</span>
+              </div>
+            </label>
+          </div>
+          <!-- Goal 3 -->
+          <div class="col-6 col-md-4">
+            <label class="goal-card-label w-100">
+              <input type="checkbox" name="objetivos" value="probar_cosas" class="goal-radio d-none">
+              <div class="goal-card">
+                <i class="bi bi-stars goal-icon"></i>
+                <span class="goal-text">Probar cosas nuevas</span>
+              </div>
+            </label>
+          </div>
+          <!-- Goal 4 -->
+          <div class="col-6 col-md-4">
+            <label class="goal-card-label w-100">
+              <input type="checkbox" name="objetivos" value="centrarme" class="goal-radio d-none">
+              <div class="goal-card">
+                <i class="bi bi-bullseye goal-icon"></i>
+                <span class="goal-text">Centrarme más</span>
+              </div>
+            </label>
+          </div>
+          <!-- Goal 5 -->
+          <div class="col-6 col-md-4">
+            <label class="goal-card-label w-100">
+              <input type="checkbox" name="objetivos" value="mejor_relacion" class="goal-radio d-none">
+              <div class="goal-card">
+                <i class="bi bi-people-fill goal-icon"></i>
+                <span class="goal-text">Mejorar relaciones</span>
+              </div>
+            </label>
+          </div>
+          <!-- Goal 6 -->
+          <div class="col-6 col-md-4">
+            <label class="goal-card-label w-100">
+              <input type="checkbox" name="objetivos" value="dormir_mejor" class="goal-radio d-none">
+              <div class="goal-card">
+                <i class="bi bi-moon-fill goal-icon"></i>
+                <span class="goal-text">Dormir mejor</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4: Health & Finalize -->
+      <div class="wizard-step" id="step4">
+        <h3 class="step-title">Últimos detalles</h3>
+        <p class="step-subtitle">Información importante para tu seguridad.</p>
+
+        <div class="mb-4">
+          <label for="{{ form.condiciones_medicas.id_for_label }}" class="form-label fw-bold">Condiciones Médicas /
+            Alergias</label>
+          {{ form.condiciones_medicas }}
+          <div class="form-text">Si no tienes ninguna, puedes dejarlo en blanco o escribir "Ninguna".</div>
+          {% if form.condiciones_medicas.errors %}
+          <div class="text-danger small mt-1">{{ form.condiciones_medicas.errors|striptags }}</div>
+          {% endif %}
+        </div>
+
+        <div class="alert alert-info d-flex align-items-center" role="alert">
+          <i class="bi bi-info-circle-fill me-2 fs-4"></i>
+          <div>
+            Al hacer clic en "Comenzar", se guardará tu perfil inicial. ¡Podrás editarlo después!
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Navigation -->
+      <div class="wizard-footer">
+        <button type="button" class="btn btn-prev" id="prevBtn" onclick="prevStep()" style="visibility: hidden;">
+          <i class="bi bi-arrow-left me-2"></i> Atrás
+        </button>
+        <button type="button" class="btn btn-next" id="nextBtn" onclick="nextStep()">
+          Siguiente <i class="bi bi-arrow-right ms-2"></i>
+        </button>
+        <button type="submit" class="btn btn-success btn-nav" id="submitBtn" style="display: none;">
+          Comenzar mi Transformación <i class="bi bi-check-lg ms-2"></i>
+        </button>
+      </div>
+
+    </form>
   </div>
+
 </div>
+</div>
+</div>
+
+{% include 'home/includes/wizard_js.html' %}
+
 {% endblock %}

@@ -35,6 +35,8 @@ def completar_perfil_view(request):
 
         if form.is_valid():
             payload = form.cleaned_data.copy() # Datos limpios y validos
+            payload['hora_despertar'] = str(payload['hora_despertar'])
+            payload['hora_dormir'] = str(payload['hora_dormir'])
             payload['activo'] = True #Para que vea solo una vez el onboarding  
             payload = {k: v for k, v in payload.items() if v not in (None, '', [])} # elimina campos vacíos (None, '', [])                    
             

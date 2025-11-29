@@ -1,0 +1,184 @@
+<style>
+  /* Wizard Container */
+  .wizard-container {
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      position: relative;
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+  }
+
+  /* Hacer que el formulario ocupe todo el espacio disponible */
+  #wizardForm {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+  }
+
+  /* Progress Bar */
+  .progress-container {
+      background-color: #f0f2f5;
+      height: 8px;
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+  }
+
+  .progress-bar-custom {
+      height: 100%;
+      background: linear-gradient(90deg, #4e73df 0%, #224abe 100%);
+      width: 25%;
+      transition: width 0.4s ease;
+      border-radius: 0 4px 4px 0;
+  }
+
+  /* Steps Animation */
+  .wizard-step {
+      display: none;
+      animation: fadeIn 0.5s ease;
+      padding: 40px;
+  }
+
+  .wizard-step.active {
+      display: block;
+  }
+
+  @keyframes fadeIn {
+      from {
+          opacity: 0;
+          transform: translateY(10px);
+      }
+
+      to {
+          opacity: 1;
+          transform: translateY(0);
+      }
+  }
+
+  /* Typography */
+  .step-title {
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 10px;
+  }
+
+  .step-subtitle {
+      color: #6c757d;
+      margin-bottom: 30px;
+  }
+
+  /* Custom Inputs */
+  .form-floating>.form-control:focus~label,
+  .form-floating>.form-control:not(:placeholder-shown)~label {
+      color: #4e73df;
+      transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+  }
+
+  .form-control:focus {
+      border-color: #4e73df;
+      box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.1);
+  }
+
+  /* Goal Cards */
+  .goal-card-label {
+      cursor: pointer;
+      transition: all 0.3s ease;
+      height: 100%;
+  }
+
+  .goal-card {
+      border: 2px solid #e3e6f0;
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      height: 100%;
+      background: #fff;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+
+  .goal-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      border-color: #b7b9cc;
+  }
+
+  .goal-radio:checked+.goal-card {
+      border-color: #4e73df;
+      background-color: #f8f9fc;
+      box-shadow: 0 8px 20px rgba(78, 115, 223, 0.15);
+      transform: translateY(-5px);
+  }
+
+  .goal-icon {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      display: block;
+      color: #4e73df;
+  }
+
+  .goal-text {
+      font-weight: 600;
+      color: #3a3b45;
+      display: block;
+  }
+
+  /* Navigation Buttons */
+  .wizard-footer {
+      padding: 20px 40px;
+      background: #f8f9fc;
+      border-top: 1px solid #e3e6f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+  }
+
+  .btn-nav {
+      padding: 10px 25px;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: all 0.3s;
+  }
+
+  .btn-prev {
+      background: #e2e6ea;
+      color: #5a5c69;
+      border: none;
+  }
+
+  .btn-prev:hover {
+      background: #d1d3e2;
+      color: #3a3b45;
+  }
+
+  .btn-next {
+      background: #4e73df;
+      color: white;
+      border: none;
+      box-shadow: 0 4px 10px rgba(78, 115, 223, 0.3);
+  }
+
+  .btn-next:hover {
+      background: #2e59d9;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(78, 115, 223, 0.4);
+  }
+
+  /* Time Input Styling */
+  .time-input-wrapper {
+      position: relative;
+  }
+
+  .time-icon {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #4e73df;
+      pointer-events: none;
+  }
+</style>

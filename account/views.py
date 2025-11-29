@@ -21,7 +21,6 @@ def login_view(request):
         # Autenticar usando NodeAPIBackend
         # Pasamos 'identifier' explícitamente para que el backend lo use
         user = authenticate(request, identifier=identifier, password=password)
-        print(f"DEBUG VIEWS: Resultado de authenticate: {user}")
 
         if user is not None:
             # ¡Éxito!

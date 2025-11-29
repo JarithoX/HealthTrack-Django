@@ -1,0 +1,105 @@
+<script>
+let currentStep = 1;
+const totalSteps = 4;
+
+function showStep(step) {
+    // Hide all steps
+    document.querySelectorAll('.wizard-step').forEach(el => {
+        el.classList.remove('active');
+        el.style.display = 'none'; // Ensure display none for animation reset
+    });
+
+    // Show current step
+    const stepElement = document.getElementById('step' + step);
+    stepElement.style.display = 'block';
+    // Small delay to allow display:block to apply before adding active class for animation
+    setTimeout(() => {
+        stepElement.classList.add('active');
+    }, 10);
+
+    // Update Progress Bar
+    const progress = (step / totalSteps) * 100;
+    document.getElementById('progressBar').style.width = progress + '%';
+
+    // Update Buttons
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Prev Button visibility
+    if (step === 1) {
+        prevBtn.style.visibility = 'hidden';
+    } else {
+        prevBtn.style.visibility = 'visible';
+    }
+
+    // Next/Submit Button visibility
+    if (step === totalSteps) {
+        nextBtn.style.display = 'none';
+        submitBtn.style.display = 'inline-block';
+    } else {
+        nextBtn.style.display = 'inline-block';
+        submitBtn.style.display = 'none';
+        nextBtn.innerHTML = 'Siguiente <i class="bi bi-arrow-right ms-2"></i>';
+    }
+}
+
+function validateStep(step) {
+    const stepElement = document.getElementById('step' + step);
+    const inputs = stepElement.querySelectorAll('input[required], select[required], textarea[required]');
+    let isValid = true;
+
+    inputs.forEach(input => {
+        if (!input.checkValidity()) {
+            isValid = false;
+            input.reportValidity(); // Shows browser default validation message
+            // Optional: Add custom invalid class
+            input.classList.add('is-invalid');
+        } else {
+            input.classList.remove('is-invalid');
+        }
+    });
+
+    // Special check for Radio Buttons (Goals) in Step 3
+    if (step === 3) {
+        const checkboxes = stepElement.querySelectorAll('input[name="objetivos"]:checked');
+
+        if (checkboxes.length === 0) {
+            isValid = false;
+            alert("Por favor, selecciona al menos un objetivo para continuar.");
+        }
+    }
+
+    return isValid;
+}
+
+function nextStep() {
+    if (validateStep(currentStep)) {
+        if (currentStep < totalSteps) {
+            currentStep++;
+            showStep(currentStep);
+        }
+    }
+}
+
+function prevStep() {
+    if (currentStep > 1) {
+        currentStep--;
+        showStep(currentStep);
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    showStep(1);
+
+    // Add Bootstrap classes to Django form fields if they don't have them
+    const formInputs = document.querySelectorAll('input, select, textarea');
+
+    formInputs.forEach(input => {
+        if (!input.classList.contains('form-control') && !input.classList.contains('form-select') && !input.classList.contains('goal-radio')) {
+            input.classList.add('form-control');
+        }
+    });
+});
+</script>
