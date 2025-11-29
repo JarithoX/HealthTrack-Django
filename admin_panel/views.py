@@ -12,16 +12,34 @@ USUARIO_API_URL = f"{API_BASE_URL}/usuarios" # Ajusta si tu endpoint es diferent
 def is_admin_or_staff(user):
     return user.is_active and (user.is_staff or user.is_superuser)
 
+# Helper para obtener headers con token
+def get_auth_headers(request):
+    user_data = request.session.get('user_session_data', {})
+    token = user_data.get('token')
+
+    if not token or not isinstance(token, str) or len(token) < 50:
+        return None
+    return {
+        'Authorization': f'Bearer {token}',
+        'Content-Type': 'application/json'
+    }
+
 # -------------------------------------------------------------------
 # 1. VISTA: Dashboard Administrativo
 # -------------------------------------------------------------------
 @login_required
 @user_passes_test(is_admin_or_staff, login_url='/account/login') # Protege el acceso
 def admin_dashboard_view(request):
+    # Obtener headers con token
+    headers = get_auth_headers(request)
+    if not headers:
+        messages.error(request, "Sesión inválida. Por favor, inicia sesión nuevamente.")
+        return redirect('account:login')
+
     # Obtener total de usuarios desde la API
     total_usuarios = 0
     try:
-        resp = requests.get(USUARIO_API_URL, timeout=5)
+        resp = requests.get(USUARIO_API_URL, headers=headers, timeout=5)
         if resp.status_code == 200:
             data = resp.json()
             total_usuarios = len(data)
@@ -40,9 +58,15 @@ def admin_dashboard_view(request):
 @login_required
 @user_passes_test(is_admin_or_staff, login_url= '/account/login')
 def listar_usuarios_view(request):
+    # Obtener headers con token
+    headers = get_auth_headers(request)
+    if not headers:
+        messages.error(request, "Sesión inválida. Por favor, inicia sesión nuevamente.")
+        return redirect('account:login')
+
 # 1. Obtener la lista de usuarios de la API de Node.js (Fuente de la verdad)
     try:
-        resp = requests.get(USUARIO_API_URL, timeout=5)
+        resp = requests.get(USUARIO_API_URL, headers=headers, timeout=5)
         if resp.status_code == 200:
             usuarios = resp.json() 
         else:
@@ -65,6 +89,11 @@ def listar_usuarios_view(request):
 @login_required
 @user_passes_test(is_admin_or_staff, login_url='/account/login')
 def editar_usuario_view(request, username):
+    # Obtener headers con token
+    headers = get_auth_headers(request)
+    if not headers:
+        messages.error(request, "Sesión inválida. Por favor, inicia sesión nuevamente.")
+        return redirect('account:login')
     
     # Restricción: No se permite la auto-edición de permisos
     if request.user.username == username:
@@ -76,7 +105,11 @@ def editar_usuario_view(request, username):
     current_rol = 'user'
     
     try:
-        resp = requests.get(f"{USUARIO_API_URL}/username/{username}", timeout=5)
+        resp = requests.get(f"{USUARIO_API_URL}/username/{username}",
+         headers=headers,
+         timeout=5
+        )
+
         if resp.status_code != 200: #sin exito
             messages.error(request, f"No se pudo cargar el perfil de {username} desde Firebase.")
             return redirect('admin_panel:listar_usuarios')
@@ -102,12 +135,25 @@ def editar_usuario_view(request, username):
             
             try:
                 # 1. Llamada PUT a la API de Node.js para actualizar en Firebase
-                resp = requests.put(
-                    f"{USUARIO_API_URL}/perfil/{username}",
-                    json=data_update,
+                resp_get = requests.get(
+                    f"{USUARIO_API_URL}/username/{username}",
+                    headers=headers,
                     timeout=5
                 )
+
+                target_uid = username
+
+                if resp_get.status_code == 200:
+                    user_data = resp_get.json()
+                    # Buscamos el identificador técnico
+                    target_uid = user_data.get('firebaseUid') or user_data.get('uid') or user_data.get('id')
                 
+                resp = requests.put(
+                    f"{USUARIO_API_URL}/perfil/{target_uid}",
+                    json=data_update,
+                    headers=headers,
+                    timeout=5
+                )
                 if resp.status_code == 200:
                     messages.success(request, f"Rol de {username} actualizado a '{new_rol}' en Firebase.")
                     return redirect('admin_panel:listar_usuarios')
@@ -139,28 +185,22 @@ def editar_usuario_view(request, username):
 @login_required
 @user_passes_test(is_admin_or_staff, login_url='/account/login')
 def eliminar_usuario_view(request, username):
+    # Obtener headers con token
+    headers = get_auth_headers(request)
+    print(f"Headers: {headers}")
+
+    if not headers:
+        messages.error(request, "Sesión inválida. Por favor, inicia sesión nuevamente.")
+        return redirect('account:login')
 
     # Obtener datos del usuario para mostrar en el template (opcional, pero buena práctica)
     usuario_firebase = {'username': username} # Fallback mínimo
     try:
-        resp = requests.get(f"{USUARIO_API_URL}/username/{username}", timeout=5)
+        resp = requests.get(f"{USUARIO_API_URL}/username/{username}", headers=headers, timeout=5)
         if resp.status_code == 200:
             usuario_firebase = resp.json()
     except:
         pass
-
-    user_data = request.session.get('user_session_data', {})
-    jwt_token = user_data.get('token')
-    
-    if not jwt_token:
-        messages.error(request, "Error de seguridad: Token no encontrado. Vuelve a iniciar sesión.")
-        return redirect('account:logout') 
-
-    # diccionario de headers para incluir el token 
-    headers = {
-        'Authorization': f'Bearer {jwt_token}',  # Estándar Bearer token
-        'Content-Type': 'application/json' 
-    }
     
     # Restricción: No se permite la auto-eliminación
     if request.user.username == username:
