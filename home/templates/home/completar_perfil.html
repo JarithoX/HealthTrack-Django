@@ -73,20 +73,27 @@
         <p class="step-subtitle">Ajustaremos las notificaciones a tu ritmo de vida.</p>
 
         <div class="row g-4 justify-content-center">
+          
           <div class="col-md-8">
             <label class="form-label fw-bold text-secondary">¿A qué hora te sueles levantar?</label>
-            <div class="time-input-wrapper">
-              <input type="time" name="hora_despertar" class="form-control form-control-lg" required>
-              <i class="bi bi-sun-fill time-icon fs-4"></i>
+            <div class="input-group input-group-lg">
+              <span class="input-group-text bg-white text-warning">
+                <i class="bi bi-sun-fill"></i>
+              </span>
+              <input type="time" name="hora_despertar" class="form-control" required>
             </div>
           </div>
+
           <div class="col-md-8">
             <label class="form-label fw-bold text-secondary">¿A qué hora suele acabar tu día?</label>
-            <div class="time-input-wrapper">
-              <input type="time" name="hora_dormir" class="form-control form-control-lg" required>
-              <i class="bi bi-moon-stars-fill time-icon fs-4"></i>
+            <div class="input-group input-group-lg">
+              <span class="input-group-text bg-white text-primary">
+                <i class="bi bi-moon-stars-fill"></i>
+              </span>
+              <input type="time" name="hora_dormir" class="form-control" required>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -99,7 +106,7 @@
           <!-- Goal 1 -->
           <div class="col-6 col-md-4">
             <label class="goal-card-label w-100">
-              <input type="checkbox" name="objetivos" value="vivir_saludable" class="goal-radio d-none" required>
+              <input type="checkbox" name="objetivos" value="vivir_saludable" class="goal-radio d-none">
               <div class="goal-card">
                 <i class="bi bi-heart-pulse-fill goal-icon"></i>
                 <span class="goal-text">Vivir más saludable</span>

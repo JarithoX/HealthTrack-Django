@@ -52,7 +52,7 @@ function validateStep(step) {
     inputs.forEach(input => {
         if (!input.checkValidity()) {
             isValid = false;
-            input.reportValidity(); // Shows browser default validation message
+            //input.reportValidity(); // Shows browser default validation message
             // Optional: Add custom invalid class
             input.classList.add('is-invalid');
         } else {
@@ -62,11 +62,23 @@ function validateStep(step) {
 
     // Special check for Radio Buttons (Goals) in Step 3
     if (step === 3) {
-        const checkboxes = stepElement.querySelectorAll('input[name="objetivos"]:checked');
+        const checkedGoals = stepElement.querySelectorAll('input[name="objetivos"]:checked');
 
-        if (checkboxes.length === 0) {
+        if (checkedGoals.length === 0) {
             isValid = false;
+            const goalsContainer = stepElement.querySelector('.goal-selection-container');
+
+            if (goalsContainer){
+                goalsContainer.classList.add('is-invalid-group');
+            }
+            
             alert("Por favor, selecciona al menos un objetivo para continuar.");
+        } else {
+            const goalsContainer = stepElement.querySelector('.goal-selection-container');
+
+            if (goalsContainer){
+                goalsContainer.classList.remove('is-invalid-group');
+            }
         }
     }
 
@@ -93,7 +105,6 @@ function prevStep() {
 document.addEventListener('DOMContentLoaded', () => {
     showStep(1);
 
-    // Add Bootstrap classes to Django form fields if they don't have them
     const formInputs = document.querySelectorAll('input, select, textarea');
 
     formInputs.forEach(input => {
