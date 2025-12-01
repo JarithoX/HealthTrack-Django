@@ -3,19 +3,118 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1 class="mb-4">{{ panel_title }}</h1>
-    <p>¡Bienvenido, <strong>{{ request.user.username }}</strong>! Tienes permisos de administrador.</p>
-    
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card text-white bg-primary mb-3">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">{{ panel_title }}</h2>
+            <p class="text-muted">Bienvenido, <strong>{{ request.user.username }}</strong></p>
+        </div>
+        <div>
+            <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill">
+                {{ request.user.rol|upper }}
+            </span>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100 border-start border-4 border-primary">
                 <div class="card-body">
-                    <h5 class="card-title">Total Usuarios</h5>
-                    <p class="card-text fs-3">{{ total_usuarios }}</p>
-                    <a href="{% url 'admin_panel:listar_usuarios' %}" class="btn btn-light btn-sm">Ver Usuarios</a>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-2" style="font-size: 0.8rem;">Total Usuarios</h6>
+                            <h2 class="mb-0 fw-bold">{{ stats.total }}</h2>
+                        </div>
+                        <div class="icon-shape bg-primary bg-opacity-10 text-primary rounded-circle flex-shrink-0">
+                            <div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-people-fill fs-4"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100 border-start border-4 border-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="overflow-hidden me-2">
+                            <h6 class="text-muted text-uppercase mb-2 text-truncate" style="font-size: 0.8rem;" title="Profesionales">
+                                Profesionales
+                            </h6>
+                            <h2 class="mb-0 fw-bold">{{ stats.profesionales }}</h2>
+                        </div>
+                        <div class="icon-shape bg-info bg-opacity-10 text-info rounded-circle flex-shrink-0"
+                            style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-heart-pulse-fill fs-4"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100 border-start border-4 border-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-2" style="font-size: 0.8rem;">Usuarios Activos</h6>
+                            <h2 class="mb-0 fw-bold">{{ stats.activos }}</h2>
+                        </div>
+                        <div class="icon-shape bg-success bg-opacity-10 text-success rounded-circle flex-shrink-0">
+                            <div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-check-circle-fill fs-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 h-100 border-start border-4 border-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted text-uppercase mb-2" style="font-size: 0.8rem;">Inactivos</h6>
+                            <h2 class="mb-0 fw-bold">{{ stats.inactivos }}</h2>
+                        </div>
+                        <div class="icon-shape bg-warning bg-opacity-10 text-warning rounded-circle flex-shrink-0">
+                            <div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-exclamation-triangle-fill fs-4"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light py-3">
+                    <h5 class="m-0 fw-bold text-primary"><i class="bi bi-lightning-fill me-2"></i>Acciones Rápidas</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Accesos directos a las funciones más utilizadas.</p>
+                    <div class="d-flex gap-3">
+                        <a href="{% url 'admin_panel:listar_usuarios' %}" class="btn btn-primary">
+                            <i class="bi bi-people me-2"></i>Gestionar Usuarios
+                        </a>
+                        <button class="btn btn-outline-secondary" disabled>
+                            <i class="bi bi-plus-circle me-2"></i>Crear Hábito Global (Pronto)
+                        </button>
+                        <button class="btn btn-outline-secondary" disabled>
+                            <i class="bi bi-megaphone me-2"></i>Enviar Anuncio (Pronto)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 {% endblock %}

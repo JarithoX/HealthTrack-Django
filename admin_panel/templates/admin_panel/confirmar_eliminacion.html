@@ -3,33 +3,47 @@
 {% block title %}{{ panel_title }}{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card border-danger shadow-lg">
-                <div class="card-header bg-danger text-white">
-                    <h3 class="mb-0">⚠️ ¡Confirmar Eliminación!</h3>
-                </div>
-                <div class="card-body text-center">
+        <div class="col-md-6 col-lg-5">
+            
+            <div class="card shadow-lg border-0 border-top border-4 border-danger">
+                
+                <div class="card-body text-center p-5">
+                    
+                    <div class="mb-4">
+                        <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="bi bi-exclamation-triangle-fill fs-1"></i>
+                        </div>
+                    </div>
 
-                    <p class="lead">¿Estás absolutamente seguro de que deseas eliminar permanentemente al usuario:</p>
-                    <h4 class="text-danger fw-bold mb-4">{{ usuario.username|upper }}</h4>
+                    <h3 class="fw-bold text-dark mb-2">¿Estás seguro?</h3>
+                    <p class="text-muted mb-4">Esta acción eliminará permanentemente al usuario:</p>
+                    
+                    <div class="bg-light border rounded p-3 mb-4">
+                        <h4 class="text-danger fw-bold m-0 text-break">{{ usuario.username }}</h4>
+                        <small class="text-muted">{{ usuario.email }}</small>
+                    </div>
 
-                    <p class="mb-4">Esta acción no se puede deshacer. Se eliminará el usuario del sistema
-                        permanentemente.</p>
+                    <p class="text-secondary small mb-4">
+                        Esta acción <strong>no se puede deshacer</strong>. Todos los datos asociados (hábitos, historial, métricas) se perderán para siempre.
+                    </p>
 
                     <form method="post">
                         {% csrf_token %}
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-danger btn-lg">Sí, Eliminar Permanentemente</button>
-                            <a href="{% url 'admin_panel:listar_usuarios' %}"
-                                class="btn btn-outline-secondary">Cancelar</a>
+                        <div class="d-grid gap-3">
+                            <button type="submit" class="btn btn-danger btn-lg shadow-sm">
+                                <i class="bi bi-trash-fill me-2"></i>Sí, Eliminar Permanentemente
+                            </button>
+                            <a href="{% url 'admin_panel:listar_usuarios' %}" class="btn btn-outline-secondary">
+                                Cancelar y volver
+                            </a>
                         </div>
                     </form>
 
                 </div>
             </div>
+
         </div>
     </div>
 </div>

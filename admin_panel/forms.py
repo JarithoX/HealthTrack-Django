@@ -3,9 +3,9 @@ from django import forms
 class RolUsuarioForm(forms.Form):
     
     ROL_CHOICES = [
-        ('user', 'Usuario Estándar'),
+        ('user', 'Usuario'),
         ('profesional', 'Profesional de Salud'),
-        ('admin', 'Administrador de Sistema'),
+        ('admin', 'Administrador'),
     ]
     
     rol = forms.ChoiceField(

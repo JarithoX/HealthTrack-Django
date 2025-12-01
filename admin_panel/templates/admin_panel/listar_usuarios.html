@@ -2,52 +2,132 @@
 {% block title %}Gestión de Usuarios{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2>Gestión de Usuarios</h2>
-    <p class="text-muted">Lista de todos los usuarios registrados en el sistema.</p>
+<div class="container mt-5 mb-5">
 
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Staff/Admin</th>
-                <th>Rol</th>
-                <th>Activo</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in usuarios %}
-            <tr>
-                <td>{{ user.username }}</td>
-                <td>{{ user.email }}</td>
-                <td>
-                    {% if user.rol == 'admin' or user.rol == 'profesional' %}
-                    <span class="badge bg-danger">STAFF</span>
-                    {% else %}
-                    <span class="badge bg-success">No Staff</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <span class="badge bg-info text-dark">{{ user.rol|upper }}</span>
-                </td>
-                <td>
-                    {% if user.activo %}
-                    <span class="badge bg-primary">Sí</span>
-                    {% else %}
-                    <span class="badge bg-warning">No</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="{% url 'admin_panel:editar_usuario' username=user.username %}"
-                        class="btn btn-sm btn-info">Editar Rol</a>
-                    <a href="{% url 'admin_panel:eliminar_usuario' username=user.username %}"
-                        class="btn btn-sm btn-danger">Eliminar</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <!-- Card Principal -->
+    <div class="card shadow-sm border-0">
+
+        <!-- Header con Título y Buscador -->
+        <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center border-bottom">
+            <h4 class="m-0 fw-bold text-primary">
+                <i class="bi bi-people-fill me-2"></i>Gestión de Usuarios
+            </h4>
+            <div class="w-25">
+                <input type="text" id="searchInput" class="form-control" placeholder="Buscar usuario...">
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered align-middle mb-0" id="usersTable">
+                    <thead class="table-light text-secondary">
+                        <tr>
+                            <th scope="col" class="ps-4">Usuario</th>
+                            <th scope="col">Correo Electrónico</th>
+                            <th scope="col" class="text-center">Rol</th>
+                            <th scope="col" class="text-center">Estado</th>
+                            <th scope="col" class="text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in usuarios %}
+                        <tr>
+                            <!-- Username -->
+                            <td class="ps-4 fw-bold text-dark">
+                                {{ user.username }}
+                            </td>
+
+                            <!-- Email -->
+                            <td class="text-muted">
+                                {{ user.email }}
+                            </td>
+
+                            <!-- Rol Badge -->
+                            <td class="text-center">
+                                {% if user.rol == 'admin' %}
+                                <span class="badge bg-danger">ADMINISTRADOR</span>
+                                {% elif user.rol == 'profesional' %}
+                                <span class="badge bg-info text-dark">PROFESIONAL</span>
+                                {% else %}
+                                <span class="badge bg-secondary">USUARIO</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Activo Status -->
+                            <td class="text-center">
+                                {% if user.activo %}
+                                <span class="badge bg-success rounded-pill">
+                                    <i class="bi bi-check-circle me-1"></i> Activo
+                                </span>
+                                {% else %}
+                                <span class="badge bg-light text-muted border rounded-pill">
+                                    <i class="bi bi-dash-circle me-1"></i> Inactivo
+                                </span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Acciones -->
+                            <td class="text-center align-middle">
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="{% url 'admin_panel:editar_usuario' username=user.username %}"
+                                        class="btn btn-sm btn-primary text-white d-flex align-items-center gap-1"
+                                        title="Editar Rol">
+                                        <i class="bi bi-pencil-square"></i> Editar
+                                    </a>
+                                    <a href="{% url 'admin_panel:eliminar_usuario' username=user.username %}"
+                                        class="btn btn-sm btn-danger text-white d-flex align-items-center gap-1"
+                                        title="Eliminar Usuario">
+                                        <i class="bi bi-trash"></i> Eliminar
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                No se encontraron usuarios registrados.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Footer de la tabla (para paginación futura) -->
+        <div class="card-footer bg-white py-3">
+            <small class="text-muted">Total de usuarios: {{ usuarios|length }}</small>
+        </div>
+    </div>
 </div>
+
+<!-- Script para Buscador en Tiempo Real -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('searchInput');
+        const table = document.getElementById('usersTable');
+        const rows = table.getElementsByTagName('tr');
+
+        searchInput.addEventListener('keyup', function () {
+            const filter = searchInput.value.toLowerCase();
+
+            // Empezamos desde 1 para saltar el encabezado (thead)
+            for (let i = 1; i < rows.length; i++) {
+                const usernameCell = rows[i].getElementsByTagName('td')[0];
+                const emailCell = rows[i].getElementsByTagName('td')[1];
+
+                if (usernameCell && emailCell) {
+                    const usernameText = usernameCell.textContent || usernameCell.innerText;
+                    const emailText = emailCell.textContent || emailCell.innerText;
+
+                    if (usernameText.toLowerCase().indexOf(filter) > -1 || emailText.toLowerCase().indexOf(filter) > -1) {
+                        rows[i].style.display = "";
+                    } else {
+                        rows[i].style.display = "none";
+                    }
+                }
+            }
+        });
+    });
+</script>
 {% endblock %}

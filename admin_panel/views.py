@@ -36,18 +36,34 @@ def admin_dashboard_view(request):
         messages.error(request, "Sesión inválida. Por favor, inicia sesión nuevamente.")
         return redirect('account:login')
 
-    # Obtener total de usuarios desde la API
-    total_usuarios = 0
+# Inicializar contadores
+    stats = {
+        'total': 0,
+        'profesionales': 0,
+        'admins': 0,
+        'activos': 0,
+        'inactivos': 0
+    }
+
     try:
+        # Obtenemos la lista completa para calcular métricas
         resp = requests.get(USUARIO_API_URL, headers=headers, timeout=5)
         if resp.status_code == 200:
-            data = resp.json()
-            total_usuarios = len(data)
+            usuarios = resp.json()
+            
+            # --- CÁLCULO DE MÉTRICAS EN PYTHON ---
+            stats['total'] = len(usuarios)
+            stats['profesionales'] = sum(1 for u in usuarios if u.get('rol') == 'profesional')
+            stats['admins'] = sum(1 for u in usuarios if u.get('rol') == 'admin')
+            stats['activos'] = sum(1 for u in usuarios if u.get('activo') is True)
+            stats['inactivos'] = stats['total'] - stats['activos']
+            # -------------------------------------
+
     except requests.RequestException:
-        pass # Si falla, mostramos 0
+        messages.error(request, "Error de conexión al obtener métricas.")
 
     context = {
-        'total_usuarios': total_usuarios,
+        'stats': stats, # Pasamos el diccionario completo
         'panel_title': 'Dashboard Administrativo'
     }
     return render(request, 'admin_panel/dashboard.html', context)
@@ -187,16 +203,19 @@ def editar_usuario_view(request, username):
 def eliminar_usuario_view(request, username):
     # Obtener headers con token
     headers = get_auth_headers(request)
-    print(f"Headers: {headers}")
 
     if not headers:
         messages.error(request, "Sesión inválida. Por favor, inicia sesión nuevamente.")
         return redirect('account:login')
 
-    # Obtener datos del usuario para mostrar en el template (opcional, pero buena práctica)
+    # Obtener datos del usuario para mostrar en el template 
     usuario_firebase = {'username': username} # Fallback mínimo
     try:
-        resp = requests.get(f"{USUARIO_API_URL}/username/{username}", headers=headers, timeout=5)
+        resp = requests.get(f"{USUARIO_API_URL}/username/{username}", 
+        headers=headers, 
+        timeout=5
+        )
+
         if resp.status_code == 200:
             usuario_firebase = resp.json()
     except:
@@ -210,7 +229,10 @@ def eliminar_usuario_view(request, username):
     if request.method == 'POST':
         try:
             # 1. Eliminar en Firebase (Node.js API)
-            resp = requests.delete(f"{USUARIO_API_URL}/username/{username}", headers=headers, timeout=5)
+            resp = requests.delete(f"{USUARIO_API_URL}/username/{username}", 
+            headers=headers, 
+            timeout=5
+            )
 
             if resp.status_code in [200, 204]: # 200 OK 
                 messages.success(request, f"Usuario '{username}' eliminado correctamente de Firebase.")

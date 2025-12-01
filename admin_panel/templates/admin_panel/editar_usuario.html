@@ -3,52 +3,89 @@
 {% block title %}{{ panel_title }}{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <div class="row justify-content-center">
-        <div class="col-md-7">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">{{ panel_title }}</h3>
+        <div class="col-md-8 col-lg-6">
+            
+            <div class="card shadow-sm border-0 border-top border-4 border-primary">
+                
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h4 class="mb-0 fw-bold text-primary">
+                        <i class="bi bi-person-gear me-2"></i>{{ panel_title }}
+                    </h4>
                 </div>
-                <div class="card-body">
 
-                    <p><strong>Username:</strong> {{ usuario.username }}</p>
-                    <p><strong>Email:</strong> {{ usuario.email }}</p>
-                    <p class="mb-4"><strong>Rol actual:</strong>
-                        <span class="badge bg-secondary">{{ current_rol|upper }}</span>
-                    </p>
+                <div class="card-body p-4">
 
-                    {% if messages %}
-                    {% for message in messages %}
-                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}"
-                        role="alert">
-                        {{ message }}
+                    <div class="bg-light p-3 rounded-3 mb-4 border">
+                        <div class="row mb-2">
+                            <div class="col-sm-4 text-muted">Username:</div>
+                            <div class="col-sm-8 fw-bold text-dark">{{ usuario.username }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-sm-4 text-muted">Email:</div>
+                            <div class="col-sm-8">{{ usuario.email }}</div>
+                        </div>
+                        <div class="row align-items-center">
+                            <div class="col-sm-4 text-muted">Rol Actual:</div>
+                            <div class="col-sm-8">
+                                {% if current_rol == 'admin' %}
+                                    <span class="badge bg-danger">ADMINISTRADOR</span>
+                                {% elif current_rol == 'profesional' %}
+                                    <span class="badge bg-info text-dark">PROFESIONAL</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">USUARIO</span>
+                                {% endif %}
+                            </div>
+                        </div>
                     </div>
-                    {% endfor %}
-                    {% endif %}
 
                     <form method="post">
                         {% csrf_token %}
 
-                        <div class="mb-3">
-                            {{ form.rol.label_tag }}
-                            {{ form.rol }}
+                        <div class="mb-4">
+                            <label for="{{ form.rol.id_for_label }}" class="form-label fw-bold text-secondary">
+                                Asignar Nuevo Rol
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-shield-lock"></i></span>
+                                {{ form.rol }}
+                            </div>
                             {% if form.rol.errors %}
-                            <div class="text-danger small">{{ form.rol.errors }}</div>
+                                <div class="text-danger small mt-1">
+                                    <i class="bi bi-exclamation-circle me-1"></i>{{ form.rol.errors|striptags }}
+                                </div>
                             {% endif %}
+                            <div class="form-text text-muted small mt-2">
+                                <i class="bi bi-info-circle me-1"></i>
+                                <strong>Admin:</strong> Control total. <strong>Profesional:</strong> Gestión de pacientes. <strong>User:</strong> Acceso estándar.
+                            </div>
                         </div>
 
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success btn-lg">💾 Guardar Cambios de Rol</button>
-                            <a href="{% url 'admin_panel:listar_usuarios' %}" class="btn btn-secondary">Cancelar y
-                                Volver</a>
+                        <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
+                            <a href="{% url 'admin_panel:listar_usuarios' %}" class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-save me-2"></i>Guardar Cambios
+                            </button>
                         </div>
+                        <br>
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                                    <i class="bi bi-info-circle-fill me-2"></i>{{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
                     </form>
 
                 </div>
             </div>
         </div>
+        
     </div>
+    
 </div>
 {% endblock %}
