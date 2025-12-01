@@ -149,7 +149,7 @@ def editar_usuario_view(request, username):
                     target_uid = user_data.get('firebaseUid') or user_data.get('uid') or user_data.get('id')
                 
                 resp = requests.put(
-                    f"{USUARIO_API_URL}/perfil/{target_uid}",
+                    f"{USUARIO_API_URL}/admin/update/{target_uid}",
                     json=data_update,
                     headers=headers,
                     timeout=5

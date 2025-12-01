@@ -45,8 +45,13 @@ cd .\entorno\Scripts\
 ```powershell
 .\Activate.ps1
 ```
-2.- Volver a la carpeta raiz [cd..] y correr el servidor:
 
+1.1.- Activa el entorno virtual en una sola linea
+```powershell
+cd .\entorno\Scripts\ ; .\Activate.ps1 ; cd.. ; cd..
+```
+
+2.- Volver a la carpeta raiz [cd..] y correr el servidor:
 ```powershell
 python manage.py runserver
 ```
