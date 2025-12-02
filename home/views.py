@@ -108,32 +108,49 @@ def completar_perfil_view(request):
 # VISTA DE home/index.html (Si el perfil ya está completo)
 @login_required
 def index(request):
-    username = request.user.username
+    # 1 Recuperar datos del usuario desde la sesión
+    # Tambien se puede obtener de la API
+    user_data = request.session.get('user_session_data', {})
+    token = user_data.get('token')
 
-    # 1. Obtener datos del perfil del usuario (para consejos personalizados)
-    # Endpoint: GET /api/usuarios/username/:username (asumiendo que devuelve {nombre, peso, altura, etc.})
-    perfil_data = get_api_data(f"/usuarios/username/{username}")
+    # Obtener la lista de objetivos
+    # Si no hay objetivos, se muestra una lista vacía
+    mis_objetivos = user_data.get('objetivos', [])
+
+    # 2. Diccionario Maestro de Recomendaciones (Hardcoded por ahora)
+    # Clave = El value del checkbox del Wizard
+    recomendaciones = []
     
-    # 2. Obtener Hábitos Predefinidos (para la sección de Acción Rápida)
-    # Endpoint: GET /api/habitos/predefinidos (ASUMIDO, NECESITAS CREAR ESTE ENDPOINT)
-    habitos_predefinidos = get_api_data("/habitos/predefinidos")
-    
-    # Limitamos a 4 hábitos para el dashboard
-    habitos_predefinidos_top = habitos_predefinidos[:4] 
+    try:
+        # Preparamos headers (aunque este endpoint podría ser público, mejor enviar token por si acaso)
+        headers = {'Content-Type': 'application/json'}
+        if token:
+            headers['Authorization'] = f'Bearer {token}'
 
-    # 3. Obtener Listado de Profesionales (para la sección Social)
-    # Endpoint: GET /api/usuarios/profesionales (ASUMIDO, NECESITAS CREAR ESTE ENDPOINT)
-    profesionales = get_api_data("/usuarios/profesionales")
-    profesionales_top = profesionales[:3] # Limitamos a 3
+        # Enviamos los objetivos a la API para que nos devuelva las plantillas coincidentes
+        response = requests.post(
+            f"{API_BASE_URL}/habitos-recomendados",
+            json={'objetivos': mis_objetivos},
+            headers=headers,
+            timeout=5
+        )
 
+        if response.status_code == 200:
+            respuesta_json = response.json() 
+            recomendaciones = respuesta_json.get('data', [])  # Lista de objetos desde Firebase
+            print('DEBUG: Recomendaciones: ', recomendaciones)
+        else:
+            print(f"Error API Recomendaciones: {response.status_code} - {response.text}")
+
+    except requests.RequestException as e:
+        print(f"Error de conexión API: {e}")
+        # Recomendaciones estará vacío, el template lo manejará
+
+    # 3. Contexto para el Template
     context = {
-        'username': username,
-        #'nombre_usuario': perfil_data.get('nombre', username), # Usar el nombre si existe
-        
-        # Datos para las secciones del home
-        'perfil_data': perfil_data,
-        'habitos_predefinidos': habitos_predefinidos_top,
-        'profesionales': profesionales_top,
+        'recomendaciones': recomendaciones, # Ahora son datos reales de Firebase
+        'nombre_usuario': request.user.username,
+        # Aquí iría la lógica de racha futura
+        'racha_dias': 0 
     }
-
     return render(request, 'home/index.html', context)

@@ -1,25 +1,28 @@
-
 from django import forms
 
 #Propósito: Crear o editar la meta del hábito. 
 #Es el formulario que el usuario llena una sola vez 
 class HabitoDefinicionForm(forms.Form):
-    nombre = forms.CharField(label='Nombre del Hábito', max_length=100, 
-                             widget=forms.TextInput(attrs={'placeholder': 'Ej: Correr 5K, Leer 10 páginas'}))
-    #Modificar nombres 
-    TIPO_MEDICION_CHOICES = [
-        ('Numero entero', 'Número Entero (Ej: Pasos, Minutos, Páginas)'),
-        ('Booleano', 'Completado / No Completado.'),   #Verificar que siempre se inicialice el booleano en FALSE (no comnpletado)
-        ('Flotante', 'Decimal (Ej: Litros de agua, Horas de sueño)'),
-    ]
-    tipo_medicion = forms.ChoiceField(label='Tipo de Medición', initial='Numero entero', choices=TIPO_MEDICION_CHOICES, 
-                                      widget=forms.Select(attrs={'class': 'form-select'}))
+    nombre = forms.CharField(label='¿Qué hábito quieres construir?', max_length=100, 
+                             widget=forms.TextInput(attrs={'placeholder': 'Ej: Correr 5K, Leer 10 páginas', 'class': 'form-control form-control-lg'}))
     
-    meta = forms.CharField(label='Meta o Valor Objetivo', max_length=50,
-                           widget=forms.TextInput(attrs={'placeholder': 'Ej: 5000, 1, 1.5'}))
+    TIPO_MEDICION_CHOICES = [
+        ('Numero entero', 'Número Entero'),
+        ('Booleano', 'Completado / No Completado'),
+        ('Flotante', 'Decimal'),
+    ]
+    # Ocultamos este campo porque se llenará vía JS
+    tipo_medicion = forms.ChoiceField(choices=TIPO_MEDICION_CHOICES, widget=forms.HiddenInput())
+    
+    # Nuevos campos ocultos/opcionales para la UI
+    icono = forms.CharField(widget=forms.HiddenInput(), required=False)
+    unidad = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    meta = forms.CharField(label='Mi Objetivo Diario', max_length=50,
+                           widget=forms.TextInput(attrs={'placeholder': 'Ej: 30', 'class': 'form-control form-control-lg'}))
     
     frecuencia = forms.CharField(label='Frecuencia', initial='Diaria', 
-                                 widget=forms.TextInput(attrs={'placeholder': 'Ej: Diaria, Lunes y Jueves'}))
+                                 widget=forms.TextInput(attrs={'placeholder': 'Ej: Diaria, Lunes y Jueves', 'class': 'form-control'}))
     
 #Propósito: El formulario que el usuario llenará 
 # todos los días para registrar su progreso.

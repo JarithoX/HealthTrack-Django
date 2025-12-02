@@ -52,8 +52,7 @@ function validateStep(step) {
     inputs.forEach(input => {
         if (!input.checkValidity()) {
             isValid = false;
-            //input.reportValidity(); // Shows browser default validation message
-            // Optional: Add custom invalid class
+
             input.classList.add('is-invalid');
         } else {
             input.classList.remove('is-invalid');

@@ -3,73 +3,152 @@
 {% block title %}Inicio - Health Track{% endblock %} 
 
 {% block content %}
+<div class="container py-5">
 
-    <div class="p-5 text-center text-white mb-3 rounded-3" style="background-color: var(--bs-primary);">
-        <h1 class="display-4 fw-bold">
-            ¡Bienvenido de vuelta, <span class="text-warning">{{ username }}</span>!
-        </h1>
-        <p class="lead mb-4">
-            Tu salud es tu mayor inversión. ¡Empecemos a construirla con pequeños hábitos hoy!
-        </p>
-        <a href="{% url 'habitos:registro_habito' %}" class="btn btn-warning btn-lg px-4">
-            Revisar Mis Hábitos de Hoy
-        </a>
+    <div class="p-5 mb-5 bg-primary bg-gradient rounded-4 text-white shadow-sm position-relative overflow-hidden">
+        <div class="position-relative z-1">
+            <h1 class="display-5 fw-bold">¡Hola, {{ nombre_usuario }}! 👋</h1>
+            <p class="col-md-8 fs-4 mt-2">Hoy es un gran día para construir tu mejor versión.</p>
+            <div class="mt-4">
+                <a href="{% url 'habitos:registro_habito' %}" class="btn btn-light btn-lg px-4 fw-bold text-primary shadow-sm">
+                    <i class="bi bi-calendar-check me-2"></i>Registrar mi Día
+                </a>
+            </div>
+        </div>
+        <i class="bi bi-activity position-absolute top-0 end-0 opacity-25" style="font-size: 15rem; margin-top: -3rem; margin-right: -2rem;"></i>
     </div>
 
-    <div class="row">
-        <div class="col-md-12">
-            
-            <h2 class="mt-4 mb-3">✅ Empieza rápido: Agrega hábitos comunes</h2>
-            <div class="row row-cols-1 row-cols-md-4 g-4 mb-5">
-                {% for habito in habitos_predefinidos %}
-                    <div class="col">
-                        <div class="card h-100 shadow-sm border-success">
-                            <div class="card-body text-center">
-                                <h5 class="card-title text-success">{{ habito.nombre|default:"Nuevo Hábito" }}</h5>
-                                <p class="card-text text-muted">{{ habito.descripcion|default:"Caminata o ejercicio." }}</p>
-                                <a href="#" class="btn btn-outline-success mt-2 disabled">
-                                    + Añadir a Mis Hábitos
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                {% empty %}
-                    <p class="text-muted">No hay hábitos predefinidos disponibles en este momento.</p>
-                {% endfor %}
-            </div>
-
-            <h2 class="mt-4 mb-3">🧠 Consejos Personalizados para ti</h2>
-            <div class="alert alert-info shadow-sm" role="alert">
-                <i class="bi bi-person-check-fill me-2"></i>
-                {% if perfil_data.peso and perfil_data.altura %}
-                    Basado en tus datos de peso ({{ perfil_data.peso }} kg) y altura ({{ perfil_data.altura }} cm),
-                    recuerda que mantener un equilibrio hídrico es clave. ¡Intenta beber más de **2 litros de agua** hoy!
-                {% else %}
-                    ¡Te invitamos a completar tu perfil para recibir consejos más específicos y personalizados!
-                    <a href="{% url 'home:completar_perfil' %}" class="alert-link">Completar Perfil</a>
-                {% endif %}
+    <div class="mb-5">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div class="d-flex align-items-center">
+                <div class="bg-success bg-opacity-10 p-2 rounded-circle me-3 text-success">
+                    <i class="bi bi-stars fs-4"></i>
+                </div>
+                <div>
+                    <h3 class="fw-bold mb-0">Tu Plan Personalizado</h3>
+                    <p class="text-muted mb-0">Recomendaciones basadas en tus objetivos.</p>
+                </div>
             </div>
             
-            <h2 class="mt-4 mb-3">🧑‍⚕️ Conecta con Profesionales</h2>
-            <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
-                {% for prof in profesionales %}
-                    <div class="col">
-                        <div class="card h-100 shadow-sm border-secondary">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ prof.nombre }}</h5>
-                                <p class="card-text text-muted">{{ prof.condiciones_medicas|default:"Especialista en nutrición." }}</p>
-                                <a href="#" class="btn btn-outline-secondary mt-2 disabled">
-                                    Ver Perfil
+            <div class="d-none d-md-flex gap-2">
+                <button class="btn btn-outline-secondary rounded-circle swiper-btn-prev">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button class="btn btn-outline-secondary rounded-circle swiper-btn-next">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="swiper mySwiper p-1"> <div class="swiper-wrapper">
+                
+                {% for rec in recomendaciones %}
+                <div class="swiper-slide h-auto"> <div class="card h-100 border-0 shadow-sm hover-elevate transition-all">
+                        <div class="card-body p-4 d-flex flex-column">
+                            
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="p-3 rounded-circle bg-{{ rec.color }} bg-opacity-10 text-{{ rec.color }} me-3">
+                                    <i class="bi bi-{{ rec.icono }} fs-3"></i>
+                                </div>
+                                <h5 class="card-title fw-bold mb-0">{{ rec.titulo }}</h5>
+                            </div>
+                            
+                            <p class="card-text text-muted mb-4 flex-grow-1">{{ rec.descripcion }}</p>
+                            
+                            <div class="d-grid mt-auto">
+                                <a href="{% url 'habitos:crear_habito' %}?prefill={{ rec.titulo }}" class="btn btn-outline-{{ rec.color }} fw-bold border-2">
+                                    <i class="bi bi-plus-lg me-2"></i>Activar Hábito
                                 </a>
                             </div>
+
                         </div>
                     </div>
+                </div>
                 {% empty %}
-                    <p class="text-muted">No se encontraron profesionales activos en el sistema.</p>
+                <div class="col-12 text-center text-muted">
+                    <p>No hay recomendaciones disponibles por ahora.</p>
+                </div>
                 {% endfor %}
-            </div>
 
+            </div>
+            
+            <div class="swiper-pagination position-relative mt-4 d-md-none"></div>
         </div>
     </div>
 
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm bg-dark text-white rounded-4">
+                <div class="card-body p-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div class="d-flex align-items-center">
+                        <div class="p-3 rounded-circle bg-white bg-opacity-10 me-3">
+                            <i class="bi bi-fire fs-3 text-warning"></i>
+                        </div>
+                        <div>
+                            <h4 class="fw-bold mb-0">Racha Actual</h4>
+                            <p class="text-white-50 mb-0">Mantén el impulso, ¡vuelve mañana!</p>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <h2 class="display-6 fw-bold mb-0">0 <span class="fs-5 text-white-50">Días</span></h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<style>
+    .hover-elevate {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hover-elevate:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    }
+    /* Ajuste para que el carrusel no corte la sombra de las cards */
+    .swiper {
+        padding: 20px 10px !important;
+        overflow: hidden !important; 
+    }
+    /* Aseguramos que las tarjetas tengan ancho fijo según Swiper */
+    .swiper-slide {
+        height: auto;
+        display: flex; /* Para que el h-100 funcione dentro */
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+    var swiper = new Swiper(".mySwiper", {
+        slidesPerView: 1,      // Móvil: 1 tarjeta
+        spaceBetween: 20,      // Espacio entre tarjetas
+        grabCursor: true,      // Manito al arrastrar
+        navigation: {
+            nextEl: ".swiper-btn-next",
+            prevEl: ".swiper-btn-prev",
+        },
+        pagination: {
+            el: ".swiper-pagination",
+            clickable: true,
+            dynamicBullets: true,
+        },
+        breakpoints: {
+            640: {
+                slidesPerView: 2, // Tablet: 2 tarjetas
+                spaceBetween: 20,
+            },
+            1024: {
+                slidesPerView: 3, // Desktop: 3 tarjetas
+                spaceBetween: 24,
+            },
+            1400: {               // Pantallas muy grandes
+                slidesPerView: 3, 
+                spaceBetween: 30,
+            },
+        },
+    });
+</script>
 {% endblock content %}

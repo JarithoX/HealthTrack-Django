@@ -23,7 +23,7 @@ def crear_habito_view(request):
     token = user_data.get('token')
 
     if not token:
-        print("Sesión expirada. Inicia sesión nuevamente.")
+        print("DEBUG: Sesión expirada. Inicia sesión nuevamente.") # DEBUG
         messages.error(request, "Sesión expirada. Inicia sesión nuevamente.")
         return redirect('account:login')
 
@@ -93,7 +93,7 @@ def registro_habitos_view(request):
         # Fecha del formulario o fecha actual
         fecha_registro = request.POST.get('fecha_registro', date.today().isoformat())
 
-        # ⚠️ VALIDACIÓN FINAL EN DJANGO: Si el ID falla, detenemos aquí y damos un mensaje claro.
+        # VALIDACIÓN FINAL EN DJANGO: Si el ID falla, detenemos aquí y damos un mensaje claro.
         if not id_habito_def:
             # Aquí se capturará si el HTML no envió el ID
             messages.error(request, "Error de envío: El identificador del hábito (id_habito_def) no fue recibido. Verifique la plantilla HTML.")
@@ -108,9 +108,6 @@ def registro_habitos_view(request):
             'id_usuario': normalized_username, # ✅ Aseguramos el envío del ID de usuario
         }
         
-        # --- DEBUG FINAL EN DJANGO ---
-        print(f"DEBUG DJANGO POST FINAL: Enviando a Node.js: {data_registro}")
-        # -----------------------------
 
         try:
             resp = requests.post(
@@ -121,9 +118,11 @@ def registro_habitos_view(request):
             )
 
             if resp.status_code == 201:
+                print("DEBUG: resp: ", resp)
                 messages.success(request, "¡Registro guardado con éxito!")
             else:
                 # Intenta obtener el mensaje de error de la API (incluyendo el error 400 de Node.js)
+                print("DEBUG: Status code: ", resp.status_code)
                 error_msg = resp.json().get('error', resp.text) if resp.content else f"Error API desconocido (código {resp.status_code})."
                 messages.error(request, f"Error API al registrar: {error_msg}")
 

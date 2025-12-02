@@ -1,92 +1,153 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Registro de Hábitos Diarios{% endblock %}
+{% block title %}Tu Día - Health Track{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    
-    <h1 class="text-center mb-4">
-        Registro Diario 
-        {% if fecha_actual %}
-            <small class="text-muted">({{ fecha_actual }})</small>
-        {% endif %}
-    </h1>
+<div class="container mt-5 mb-5">
 
-    {% if messages %}
-        <div class="messages mb-4">
-            {% for message in messages %}
-                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="fw-bold display-6 mb-0">Tu Día</h1>
+            <p class="text-muted lead mb-0">{{ fecha_actual }}</p>
         </div>
-    {% endif %}
-
-    <div class="text-end mb-3">
-        <a href="{% url 'habitos:crear_habito' %}" class="btn btn-primary">
-            + Crear Nuevo Hábito
+        <a href="{% url 'habitos:crear_habito' %}" class="btn btn-primary btn-lg shadow-sm rounded-pill px-4">
+            <i class="bi bi-plus-lg me-2"></i>Nuevo Hábito
         </a>
     </div>
 
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show mb-4"
+        role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+
     {% if habitos %}
-        <div class="row"> 
-            {% for habito in habitos %}
-            
-                <div class="col-md-6"> 
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ habito.nombre }}</h5>
-                            <p class="card-text">Meta: {{ habito.meta }} / {{ habito.tipo_medicion }}</p>
+    <div class="row g-4">
+        {% for habito in habitos %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden hover-card">
 
-                            <form method="POST" action="{% url 'habitos:registro_habito' %}">
-                                {% csrf_token %}
-                                
-                                <input type="hidden" name="id_habito_def" value="{{ habito.id }}">
-                                <input type="hidden" name="fecha_registro" value="{{ fecha_actual }}">
-                                
-                                {% if habito.tipo_medicion == 'Binario' %}
-                                    <div class="form-check form-switch mb-3">
-                                        <input class="form-check-input" type="checkbox" id="flexSwitchCheck-{{ habito.id }}" 
-                                               name="valor_registrado" value="1">
-                                        <label class="form-check-label" for="flexSwitchCheck-{{ habito.id }}">
-                                            Completado
-                                        </label>
-                                    </div>
-                                {% else %}
-                                    <div class="mb-3">
-                                        <label for="valor-{{ habito.id }}" class="form-label">
-                                            Valor ({{ habito.tipo_medicion }})
-                                        </label>
-                                        <input type="number" step="any" class="form-control" id="valor-{{ habito.id }}" 
-                                               name="valor_registrado" placeholder="Ingresa el valor" required>
-                                    </div>
-                                {% endif %}
-
-                                <div class="mb-3">
-                                    <input type="text" class="form-control" name="comentario" placeholder="Comentario (opcional)">
-                                </div>
-                                
-                                <button type="submit" class="btn btn-primary">
-                                    Registrar Avance
-                                </button>
-                                
-                                <a href="{% url 'habitos:eliminar_habito' habito.id %}" class="btn btn-outline-danger btn-sm float-end" 
-                                   onclick="return confirm('¿Estás seguro de que quieres eliminar este hábito?')">
-                                    🗑️ Eliminar
-                                </a>
-                                
-                            </form>
+                <!-- Card Header -->
+                <div
+                    class="card-header bg-white border-0 pt-4 pb-0 px-4 d-flex justify-content-between align-items-start">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box bg-light text-primary rounded-circle me-3 d-flex align-items-center justify-content-center"
+                            style="width: 45px; height: 45px;">
+                            {% if habito.icono %}
+                            <i class="bi bi-{{ habito.icono }} fs-5"></i>
+                            {% else %}
+                            <i class="bi bi-star-fill fs-5"></i>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-0 text-truncate" style="max-width: 150px;"
+                                title="{{ habito.nombre }}">{{ habito.nombre }}</h5>
+                            {% if habito.tipo_medicion != 'Booleano' and habito.tipo_medicion != 'Binario' %}
+                            <small class="text-muted">Meta: {{ habito.meta }} {{ habito.unidad }}</small>
+                            {% endif %}
                         </div>
                     </div>
-                </div> {% endfor %}
-        </div> {% else %}
-        <div class="alert alert-info text-center p-5">
-            <h4>¡Aún no tienes hábitos configurados!</h4>
-            <p>Comienza definiendo qué quieres mejorar hoy.</p>
-            <a href="{% url 'habitos:crear_habito' %}" class="btn btn-primary mt-3">Crear mi primer hábito</a>
+                    <div class="dropdown">
+                        <button class="btn btn-link text-muted p-0" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
+                            <li>
+                                <a class="dropdown-item text-danger"
+                                    href="{% url 'habitos:eliminar_habito' habito.id %}"
+                                    onclick="return confirm('¿Eliminar este hábito?')">
+                                    <i class="bi bi-trash me-2"></i>Eliminar
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Card Body -->
+                <div class="card-body px-4 pb-4 pt-3 d-flex flex-column justify-content-end">
+
+                    <form method="POST" action="{% url 'habitos:registro_habito' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="id_habito_def" value="{{ habito.id }}">
+                        <input type="hidden" name="fecha_registro" value="{{ fecha_actual }}">
+
+                        {% if habito.tipo_medicion == 'Booleano' or habito.tipo_medicion == 'Binario' %}
+                        <!-- Booleano: Botón Grande -->
+                        <input type="hidden" name="valor_registrado" value="1">
+                        <button type="submit"
+                            class="btn btn-outline-primary w-100 py-3 rounded-3 fw-bold border-2 habit-check-btn">
+                            <i class="bi bi-check-circle me-2"></i>Marcar Realizado
+                        </button>
+                        {% else %}
+                        <!-- Numérico: Input Group -->
+                        <div class="input-group mb-3">
+                            <button class="btn btn-light border" type="button"
+                                onclick="adjustValue('val-{{ habito.id }}', -1)">
+                                <i class="bi bi-dash"></i>
+                            </button>
+                            <input type="number" step="any" class="form-control text-center fw-bold"
+                                id="val-{{ habito.id }}" name="valor_registrado" value="0" required>
+                            <button class="btn btn-light border" type="button"
+                                onclick="adjustValue('val-{{ habito.id }}', 1)">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 rounded-3 fw-bold">
+                            Actualizar
+                        </button>
+                        {% endif %}
+                    </form>
+
+                </div>
+            </div>
         </div>
-    {% endif %}
+        {% endfor %}
     </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <i class="bi bi-journal-plus text-muted opacity-25" style="font-size: 5rem;"></i>
+        </div>
+        <h3 class="fw-bold text-secondary">No tienes hábitos activos</h3>
+        <p class="text-muted mb-4">Comienza a registrar tus objetivos diarios hoy mismo.</p>
+        <a href="{% url 'habitos:crear_habito' %}" class="btn btn-primary px-4 rounded-pill">
+            Crear mi primer hábito
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+
+<style>
+    .hover-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 1rem 3rem rgba(0, 0, 0, .1) !important;
+    }
+
+    .icon-box {
+        min-width: 45px;
+    }
+</style>
+
+<script>
+    function adjustValue(inputId, delta) {
+        const input = document.getElementById(inputId);
+        let val = parseFloat(input.value) || 0;
+        val += delta;
+        // Evitar negativos si es necesario, aunque a veces se quiere restar
+        if (val < 0) val = 0;
+        input.value = val % 1 === 0 ? val : val.toFixed(1); // Entero o 1 decimal
+    }
+</script>
 {% endblock %}

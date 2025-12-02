@@ -4,36 +4,219 @@
 {% block title %}Crear Nuevo Hábito{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-5 mb-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <h3 class="text-center mb-0">Define tu Nuevo Hábito</h3>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted text-center">Crea un hábito personalizado para tu seguimiento. Tú defines el objetivo.</p>
+        <div class="col-md-10 col-lg-8">
+
+            <div class="text-center mb-5">
+                <h1 class="fw-bold display-6">Diseña tu Nuevo Hábito</h1>
+                <p class="text-muted lead">Elige qué quieres medir y empieza a construir tu mejor versión.</p>
+            </div>
+
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-body p-5">
 
                     {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}" role="alert">
-                                {{ message }}
-                            </div>
-                        {% endfor %}
+                    {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} mb-4 rounded-3"
+                        role="alert">
+                        <i class="bi bi-info-circle-fill me-2"></i>{{ message }}
+                    </div>
+                    {% endfor %}
                     {% endif %}
 
-                    <form method="post">
+                    <form method="post" id="crearHabitoForm">
                         {% csrf_token %}
-                        
-                        {{ form.as_p }}
 
-                        <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-primary">Guardar Hábito</button>
+                        <!-- Campos Ocultos -->
+                        {{ form.tipo_medicion }}
+                        {{ form.icono }}
+                        {{ form.unidad }}
+
+                        <!-- SECCIÓN 1: ¿QUÉ QUIERES MEDIR? (Tarjetas Visuales) -->
+                        <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-grid-fill me-2"></i>1. ¿Qué quieres medir?
+                        </h5>
+
+                        <div class="row g-3 mb-5">
+                            <!-- Tarjeta: Tiempo -->
+                            <div class="col-6 col-md-3">
+                                <div class="card h-100 border-2 habit-type-card text-center p-3 cursor-pointer"
+                                    onclick="selectHabitType(this, 'Flotante', 'minutos', 'stopwatch')">
+                                    <div class="card-body p-1">
+                                        <div class="icon-box bg-primary bg-opacity-10 text-primary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                                            style="width: 50px; height: 50px;">
+                                            <i class="bi bi-stopwatch fs-4"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-1">Tiempo</h6>
+                                        <small class="text-muted" style="font-size: 0.75rem;">Minutos, Horas</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tarjeta: Distancia -->
+                            <div class="col-6 col-md-3">
+                                <div class="card h-100 border-2 habit-type-card text-center p-3 cursor-pointer"
+                                    onclick="selectHabitType(this, 'Flotante', 'km', 'geo-alt')">
+                                    <div class="card-body p-1">
+                                        <div class="icon-box bg-success bg-opacity-10 text-success rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                                            style="width: 50px; height: 50px;">
+                                            <i class="bi bi-geo-alt fs-4"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-1">Distancia</h6>
+                                        <small class="text-muted" style="font-size: 0.75rem;">Km, Metros</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tarjeta: Cantidad -->
+                            <div class="col-6 col-md-3">
+                                <div class="card h-100 border-2 habit-type-card text-center p-3 cursor-pointer"
+                                    onclick="selectHabitType(this, 'Numero entero', 'veces', 'droplet')">
+                                    <div class="card-body p-1">
+                                        <div class="icon-box bg-info bg-opacity-10 text-info rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                                            style="width: 50px; height: 50px;">
+                                            <i class="bi bi-droplet fs-4"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-1">Cantidad</h6>
+                                        <small class="text-muted" style="font-size: 0.75rem;">Vasos, Páginas</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tarjeta: Cumplimiento -->
+                            <div class="col-6 col-md-3">
+                                <div class="card h-100 border-2 habit-type-card text-center p-3 cursor-pointer"
+                                    onclick="selectHabitType(this, 'Booleano', 'check', 'check-circle')">
+                                    <div class="card-body p-1">
+                                        <div class="icon-box bg-warning bg-opacity-10 text-warning rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                                            style="width: 50px; height: 50px;">
+                                            <i class="bi bi-check-circle fs-4"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-1">Sí / No</h6>
+                                        <small class="text-muted" style="font-size: 0.75rem;">Hecho o no hecho</small>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- SECCIÓN 2: DETALLES DEL HÁBITO -->
+                        <div id="detailsSection" class="opacity-50"
+                            style="pointer-events: none; transition: opacity 0.3s;">
+                            <h5 class="fw-bold mb-4 text-primary"><i class="bi bi-pencil-fill me-2"></i>2. Personalízalo
+                            </h5>
+
+                            <div class="mb-4">
+                                <label for="{{ form.nombre.id_for_label }}" class="form-label fw-bold text-secondary">
+                                    {{form.nombre.label }}</label>
+                                {{ form.nombre }}
+                                {% if form.nombre.errors %}
+                                <div class="text-danger small mt-1">{{ form.nombre.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6" id="metaContainer">
+                                    <label for="{{ form.meta.id_for_label }}"
+                                        class="form-label fw-bold text-secondary">{{ form.meta.label }}</label>
+                                    <div class="input-group">
+                                        {{ form.meta }}
+                                        <span class="input-group-text bg-light text-muted"
+                                            id="unitLabel">unidades</span>
+                                    </div>
+                                    {% if form.meta.errors %}
+                                    <div class="text-danger small mt-1">{{ form.meta.errors }}</div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="{{ form.frecuencia.id_for_label }}"
+                                        class="form-label fw-bold text-secondary">{{ form.frecuencia.label }}</label>
+                                    {{ form.frecuencia }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-5">
+                            <button type="submit" class="btn btn-primary btn-lg shadow-sm fw-bold">
+                                <i class="bi bi-save-fill me-2"></i>Crear Hábito
+                            </button>
+                        </div>
+
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .habit-type-card {
+        transition: all 0.2s ease;
+    }
+
+    .habit-type-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important;
+    }
+
+    .habit-type-card.active {
+        border-color: var(--bs-primary) !important;
+        background-color: rgba(var(--bs-primary-rgb), 0.03);
+    }
+
+    .habit-type-card.active .icon-box {
+        background-color: var(--bs-primary) !important;
+        color: white !important;
+    }
+</style>
+
+<script>
+    function selectHabitType(card, tipo, unidad, icono) {
+        // 1. Visual Feedback
+        document.querySelectorAll('.habit-type-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+
+        // 2. Enable Details Section
+        const details = document.getElementById('detailsSection');
+        details.classList.remove('opacity-50');
+        details.style.pointerEvents = 'auto';
+
+        // 3. Set Hidden Inputs
+        document.querySelector('input[name="tipo_medicion"]').value = tipo;
+        document.querySelector('input[name="icono"]').value = icono;
+        document.querySelector('input[name="unidad"]').value = unidad;
+
+        // 4. Update UI based on selection
+        const unitLabel = document.getElementById('unitLabel');
+        const metaContainer = document.getElementById('metaContainer');
+        const metaInput = document.querySelector('input[name="meta"]');
+
+        if (tipo === 'Booleano') {
+            // Si es Check, ocultamos la meta numérica (o la fijamos en 1 internamente)
+            metaContainer.style.display = 'none';
+            metaInput.value = '1'; // Valor dummy para que pase validación
+        } else {
+            metaContainer.style.display = 'block';
+            metaInput.value = ''; // Limpiar si cambia de tipo
+            unitLabel.textContent = unidad;
+        }
+    }
+
+    // Auto-fill logic on load
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const prefillName = urlParams.get('prefill');
+
+        if (prefillName) {
+            const nameInput = document.querySelector('input[name="nombre"]');
+            if (nameInput) {
+                nameInput.value = prefillName;
+            }
+        }
+    });
+</script>
 {% endblock %}
