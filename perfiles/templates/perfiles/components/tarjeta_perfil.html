@@ -42,7 +42,7 @@
                     <i class="bi bi-calendar-check me-2"></i> Estado
                 </div>
                 <div>
-                    {% if usuario.is_active %}
+                    {% if usuario.activo %}
                     <span class="badge bg-success-subtle text-success border border-success-subtle">Activo</span>
                     {% else %}
                     <span
@@ -89,17 +89,19 @@
             </div>
         </div>
 
-        {% if usuario.objetivos %}
+        {% if objetivos_enriquecidos %}
         <div class="mt-4">
-            <div class="d-flex align-items-center text-muted mb-2">
+            <div class="d-flex align-items-center text-muted mb-3">
                 <i class="bi bi-bullseye me-2"></i> Objetivos
             </div>
-            <div>
-                {% for obj in usuario.objetivos %}
-                <span class="badge bg-primary-subtle text-primary border border-primary-subtle me-1 mb-1">{{ obj
-                    }}</span>
-                {% empty %}
-                <span class="text-muted small fst-italic">Sin objetivos definidos</span>
+            <div class="row g-3">
+                {% for obj in objetivos_enriquecidos %}
+                <div class="col-6 col-md-4">
+                    <div class="p-3 border rounded-3 text-center h-100 bg-white shadow-sm">
+                        <i class="bi {{ obj.icon }} fs-2 mb-2 d-block {{ obj.color }}"></i>
+                        <span class="fw-medium small text-dark">{{ obj.label }}</span>
+                    </div>
+                </div>
                 {% endfor %}
             </div>
         </div>
