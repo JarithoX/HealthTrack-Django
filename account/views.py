@@ -27,7 +27,14 @@ def login_view(request):
             # Convertimos el SimpleNamespace a dict
             request.session['user_session_data'] = user.__dict__
             
-            # Opcional: Si necesitas manejar 'is_active' para onboarding
+            # Redirección basada en roles
+            if getattr(user, 'rol', None) == 'admin':
+                return redirect('admin_panel:dashboard')
+            elif getattr(user, 'rol', None) == 'profesional':
+                return redirect('professional_panel:dashboard')
+            
+            # Lógica para usuarios normales (rol 'user' o sin rol definido)
+            # Para manejar 'is_active' al onboarding
             if not getattr(user, 'is_active', True):
                  return redirect('home:completar_perfil')
             

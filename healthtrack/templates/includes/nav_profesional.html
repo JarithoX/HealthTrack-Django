@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark {{ NAV_CLASS }} shadow-sm">
     <div class="container-fluid">
 
-        <a class="navbar-brand d-flex align-items-center" href="{% url 'home:index' %}">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'professional_panel:dashboard' %}">
             <span class="fs-4 fw-bold">HealthTrack - PRO</span>
         </a>
 
@@ -13,18 +13,6 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 {% if user.is_authenticated %}
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{% url 'home:index' %}">Inicio</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'habitos:registro_habito' %}">Mis Hábitos</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'habitos:crear_habito' %}">Hábitos</a>
-                </li>
-
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'professional_panel:dashboard' %}">Panel Profesional</a>
                 </li>
