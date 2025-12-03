@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'reportes',
     'seguimiento',
     'admin_panel',
+    'professional_panel',
 ]
 
 MIDDLEWARE = [

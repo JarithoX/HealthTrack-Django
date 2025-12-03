@@ -55,3 +55,8 @@ cd .\entorno\Scripts\ ; .\Activate.ps1 ; cd.. ; cd..
 ```powershell
 python manage.py runserver
 ```
+
+2.1.- Migrar la base de datos:
+```powershell
+.\entorno\Scripts\python.exe manage.py migrate
+```

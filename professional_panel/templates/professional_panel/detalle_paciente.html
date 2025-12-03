@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Expediente Paciente{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">{{ panel_title }}</h2>
+            <p class="text-muted mb-0">Email: {{ usuario.email }} | Estado:
+                {% if usuario.activo %}
+                <span class="text-success fw-bold">Activo</span>
+                {% else %}
+                <span class="text-danger fw-bold">Inactivo</span>
+                {% endif %}
+            </p>
+        </div>
+        <a href="{% url 'professional_panel:listar_pacientes' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Volver a la Lista
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Columna Izquierda: Hábitos Definidos -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-light py-3">
+                    <h5 class="m-0 fw-bold text-primary"><i class="bi bi-list-check me-2"></i>Hábitos Activos</h5>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="list-group list-group-flush">
+                        {% for habito in habitos %}
+                        <li class="list-group-item px-4 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-shape bg-primary bg-opacity-10 text-primary rounded-circle me-3 flex-shrink-0"
+                                    style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="bi bi-{{ habito.icono|default:'star' }}"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1 fw-bold">{{ habito.nombre }}</h6>
+                                    <div class="mt-1">
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item p-4 text-center text-muted">
+                            Este paciente no tiene hábitos definidos.
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Columna Derecha: Historial de Registros -->
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-light py-3">
+                    <h5 class="m-0 fw-bold text-success"><i class="bi bi-graph-up me-2"></i>Historial de Progreso</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Hábito</th>
+                                    <th>Valor</th>
+                                    <th>Comentario</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for registro in registros %}
+                                <tr>
+                                    <td>{{ registro.fecha|slice:":10" }}</td>
+                                    <td class="fw-bold">{{ registro.nombre_habito }}</td>
+                                    <td>
+                                        {% if registro.tipo_medicion == 'Binario' %}
+                                        {% if registro.valor_registrado %}
+                                        <span class="badge bg-success"><i class="bi bi-check-lg"></i> Completado</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">No completado</span>
+                                        {% endif %}
+                                        {% else %}
+                                        <span class="fw-bold text-primary">{{ registro.valor_registrado }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-muted fst-italic">
+                                        {{ registro.comentario|default:"-"|truncatechars:30 }}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-5 text-muted">
+                                        No hay registros de actividad recientes.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
