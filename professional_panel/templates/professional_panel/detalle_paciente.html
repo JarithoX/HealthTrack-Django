@@ -104,5 +104,65 @@
             </div>
         </div>
     </div>
+
+    <!-- Sección de Comentarios del Profesional -->
+    <div class="row mt-4 mb-5">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-warning bg-opacity-10 py-3">
+                    <h5 class="m-0 fw-bold text-dark"><i class="bi bi-chat-square-text me-2"></i>Notas y Comentarios
+                        para el Paciente</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Formulario -->
+                        <div class="col-md-5 border-end">
+                            <h6 class="fw-bold mb-3">Dejar un nuevo comentario</h6>
+                            <form method="POST">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <textarea name="comentario" class="form-control" rows="4"
+                                        placeholder="Escribe un mensaje de aliento o corrección para el paciente..."
+                                        required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-send me-2"></i>Enviar Comentario
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Historial -->
+                        <div class="col-md-7">
+                            <h6 class="fw-bold mb-3 ps-3">Historial de Mensajes</h6>
+                            <div class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+                                {% for comentario in comentarios %}
+                                <div
+                                    class="list-group-item px-3 py-3 {% if not comentario.is_from_professional %}bg-light{% endif %}">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <small
+                                            class="fw-bold {% if comentario.is_from_professional %}text-primary{% else %}text-success{% endif %}">
+                                            {% if comentario.is_from_professional %}
+                                            {{ comentario.professional }} (Tú)
+                                            {% else %}
+                                            {{ comentario.patient_username }} (Paciente)
+                                            {% endif %}
+                                        </small>
+                                        <small class="text-muted">{{ comentario.created_at|date:"d M Y, H:i" }}</small>
+                                    </div>
+                                    <p class="mb-0 text-dark">{{ comentario.comment }}</p>
+                                </div>
+                                {% empty %}
+                                <div class="text-center text-muted py-4">
+                                    <i class="bi bi-chat-square-dots fs-3 d-block mb-2"></i>
+                                    No hay comentarios registrados aún.
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

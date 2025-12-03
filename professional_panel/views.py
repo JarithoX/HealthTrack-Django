@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.conf import settings
 from django.contrib import messages
 import requests
+from .models import ProfessionalComment
 
 API_BASE_URL = getattr(settings, 'API_BASE_URL', 'http://localhost:3000/api')
 
@@ -114,10 +115,27 @@ def detalle_paciente_view(request, username):
     except:
         pass
 
+    # 4. Manejo de Comentarios (Local DB)
+    if request.method == 'POST':
+        comentario_texto = request.POST.get('comentario')
+        if comentario_texto:
+            ProfessionalComment.objects.create(
+                professional=request.user.username, # Guardamos solo el string
+                patient_username=username,
+                comment=comentario_texto,
+                is_from_professional=True
+            )
+            messages.success(request, "Comentario agregado correctamente.")
+            return redirect('professional_panel:detalle_paciente', username=username)
+
+    # Obtener comentarios históricos
+    comentarios = ProfessionalComment.objects.filter(patient_username=username).order_by('-created_at')
+
     context = {
         'usuario': usuario,
         'habitos': habitos,
         'registros': registros,
+        'comentarios': comentarios,
         'panel_title': f'Expediente: {username}'
     }
     return render(request, 'professional_panel/detalle_paciente.html', context)
