@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.conf import settings
 from django.contrib import messages
 import requests
-from .models import ProfessionalComment
+from . import services
 
 API_BASE_URL = getattr(settings, 'API_BASE_URL', 'http://localhost:3000/api')
 
@@ -115,21 +115,26 @@ def detalle_paciente_view(request, username):
     except:
         pass
 
-    # 4. Manejo de Comentarios (Local DB)
+    # 4. Manejo de Comentarios (Firestore)
     if request.method == 'POST':
         comentario_texto = request.POST.get('comentario')
         if comentario_texto:
-            ProfessionalComment.objects.create(
-                professional=request.user.username, # Guardamos solo el string
+            success = services.send_message(
+                professional_username=request.user.username,
                 patient_username=username,
-                comment=comentario_texto,
+                content=comentario_texto,
                 is_from_professional=True
             )
-            messages.success(request, "Comentario agregado correctamente.")
+            if success:
+                messages.success(request, "Comentario enviado correctamente.")
+            else:
+                messages.error(request, "Error: No se pudo conectar con la API de Chat. Verifica que tu servidor Node.js esté corriendo.")
             return redirect('professional_panel:detalle_paciente', username=username)
 
-    # Obtener comentarios históricos
-    comentarios = ProfessionalComment.objects.filter(patient_username=username).order_by('-created_at')
+    # Obtener comentarios históricos de Firestore
+    comentarios = services.get_messages(patient_username=username)
+    # Ordenar por fecha descendente para la vista (el servicio devuelve ascendente)
+    comentarios.reverse()
 
     context = {
         'usuario': usuario,
