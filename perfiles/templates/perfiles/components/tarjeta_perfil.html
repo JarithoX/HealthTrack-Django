@@ -1,0 +1,119 @@
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <!-- Header con color dinámico según rol -->
+    <div class="card-header border-0 py-4 text-center 
+        {% if usuario.rol == 'admin' %}bg-danger bg-gradient text-white
+        {% elif usuario.rol == 'profesional' %}bg-primary bg-gradient text-white
+        {% else %}bg-success bg-gradient text-white{% endif %}">
+
+        <div class="d-flex justify-content-center mb-3">
+            <div class="rounded-circle bg-white text-dark d-flex align-items-center justify-content-center shadow"
+                style="width: 80px; height: 80px; font-size: 2rem; font-weight: bold;">
+                {{ usuario.username|slice:":2"|upper }}
+            </div>
+        </div>
+
+        <h3 class="mb-1">{{ usuario.nombre }} {{ usuario.apellido }}</h3>
+        <p class="mb-0 opacity-75">@{{ usuario.username }}</p>
+
+        <span class="badge rounded-pill mt-2 
+            {% if usuario.rol == 'admin' %}bg-dark
+            {% elif usuario.rol == 'profesional' %}bg-info text-dark
+            {% else %}bg-light text-success{% endif %}">
+            {{ usuario.rol|upper }}
+        </span>
+    </div>
+
+    <div class="card-body p-4">
+        <!-- Información de Cuenta -->
+        <h5 class="text-muted mb-3 border-bottom pb-2">
+            <i class="bi bi-person-badge me-2"></i>Información de Cuenta
+        </h5>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="d-flex align-items-center text-muted mb-1">
+                    <i class="bi bi-envelope me-2"></i> Email
+                </div>
+                <div class="fw-medium">{{ usuario.email }}</div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="d-flex align-items-center text-muted mb-1">
+                    <i class="bi bi-calendar-check me-2"></i> Estado
+                </div>
+                <div>
+                    {% if usuario.is_active %}
+                    <span class="badge bg-success-subtle text-success border border-success-subtle">Activo</span>
+                    {% else %}
+                    <span
+                        class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Inactivo</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Datos de Salud (Solo Usuarios) -->
+        {% if usuario.rol == 'user' %}
+        <h5 class="text-muted mb-3 border-bottom pb-2 mt-4">
+            <i class="bi bi-activity me-2"></i>Datos de Salud
+        </h5>
+
+        <div class="row g-3">
+            <div class="col-6 col-md-3">
+                <div class="p-3 bg-light rounded-3 text-center h-100">
+                    <i class="bi bi-speedometer2 text-primary fs-4 mb-2 d-block"></i>
+                    <small class="text-muted d-block">Peso</small>
+                    <span class="fw-bold">{{ usuario.peso|default:"--" }} kg</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 bg-light rounded-3 text-center h-100">
+                    <i class="bi bi-rulers text-info fs-4 mb-2 d-block"></i>
+                    <small class="text-muted d-block">Altura</small>
+                    <span class="fw-bold">{{ usuario.altura|default:"--" }} cm</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 bg-light rounded-3 text-center h-100">
+                    <i class="bi bi-cake text-warning fs-4 mb-2 d-block"></i>
+                    <small class="text-muted d-block">Edad</small>
+                    <span class="fw-bold">{{ usuario.edad|default:"--" }} años</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 bg-light rounded-3 text-center h-100">
+                    <i class="bi bi-gender-ambiguous text-danger fs-4 mb-2 d-block"></i>
+                    <small class="text-muted d-block">Género</small>
+                    <span class="fw-bold">{{ usuario.genero|default:"--"|capfirst }}</span>
+                </div>
+            </div>
+        </div>
+
+        {% if usuario.objetivos %}
+        <div class="mt-4">
+            <div class="d-flex align-items-center text-muted mb-2">
+                <i class="bi bi-bullseye me-2"></i> Objetivos
+            </div>
+            <div>
+                {% for obj in usuario.objetivos %}
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle me-1 mb-1">{{ obj
+                    }}</span>
+                {% empty %}
+                <span class="text-muted small fst-italic">Sin objetivos definidos</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <!-- Botones de Acción -->
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5 pt-3 border-top">
+            <a href="#" class="btn btn-outline-secondary">
+                <i class="bi bi-key me-2"></i>Cambiar Contraseña
+            </a>
+            <a href="#" class="btn btn-primary">
+                <i class="bi bi-pencil-square me-2"></i>Editar Perfil
+            </a>
+        </div>
+    </div>
+</div>

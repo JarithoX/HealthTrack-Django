@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'seguimiento',
     'admin_panel',
     'professional_panel',
+    'perfiles',
 ]
 
 MIDDLEWARE = [
