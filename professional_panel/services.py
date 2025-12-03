@@ -4,32 +4,42 @@ from django.conf import settings
 # URL base de tu API (definida en settings o hardcoded por ahora)
 API_BASE_URL = getattr(settings, 'API_BASE_URL', 'http://localhost:3000/api')
 
+from datetime import datetime
+
+# ... (imports)
+
 def get_messages(patient_username):
     """Obtiene los mensajes consultando la API de Node.js."""
     try:
         url = f"{API_BASE_URL}/chat/{patient_username}"
-        print(f"DEBUG: GET Request URL: {url}") # Debug print
         response = requests.get(url, timeout=5)
-        print(f"DEBUG: GET Response Code: {response.status_code}") # Debug print
         
         if response.status_code == 200:
             data_list = response.json()
             # Mapear respuesta de la API a lo que espera el template
             messages = []
             for item in data_list:
+                # Parsear timestamp si es string
+                ts = item.get('timestamp')
+                if isinstance(ts, str):
+                    try:
+                        # Intenta formato ISO básico
+                        ts = datetime.fromisoformat(ts.replace('Z', '+00:00'))
+                    except ValueError:
+                        pass # Si falla, se deja como string (o se podría usar dateutil)
+
                 msg = {
                     'comment': item.get('contenido', ''),
                     'professional': item.get('remitente_id', ''),
                     'patient_username': patient_username,
                     'is_from_professional': item.get('remitente_tipo') == 'profesional',
-                    'created_at': item.get('timestamp'), # La API debe devolver string ISO o similar
-                    'timestamp': item.get('timestamp')
+                    'created_at': ts, 
+                    'timestamp': ts
                 }
                 messages.append(msg)
             return messages
         else:
             print(f"Error API Chat: {response.status_code}")
-            print(f"DEBUG: Response Content: {response.text}") # Debug print
             return []
             
     except Exception as e:
@@ -47,12 +57,7 @@ def send_message(professional_username, patient_username, content, is_from_profe
             'remitente_tipo': 'profesional' if is_from_professional else 'paciente'
         }
         
-        print(f"DEBUG: POST Request URL: {url}") # Debug print
-        print(f"DEBUG: POST Payload: {payload}") # Debug print
-        
         response = requests.post(url, json=payload, timeout=5)
-        
-        print(f"DEBUG: POST Response Code: {response.status_code}") # Debug print
         
         if response.status_code in [200, 201]:
             return True

@@ -162,7 +162,12 @@ def index(request):
     }
     return render(request, 'home/index.html', context)
 
+from django.views.decorators.clickjacking import xframe_options_sameorigin
+
+from django.urls import reverse
+
 @login_required
+@xframe_options_sameorigin
 def mensajes_view(request):
     username = request.user.username
     
@@ -186,10 +191,18 @@ def mensajes_view(request):
                 content=mensaje_texto,
                 is_from_professional=False # Es del paciente
             )
-            return redirect('home:mensajes')
+            # Redireccionar manteniendo el modo widget si existe
+            url = reverse('home:mensajes')
+            if request.GET.get('mode') == 'widget':
+                url += '?mode=widget'
+            return redirect(url)
     
     context = {
         'comentarios': comentarios,
         'professional_username': professional_username
     }
+    
+    if request.GET.get('mode') == 'widget':
+        return render(request, 'home/mensajes_widget.html', context)
+        
     return render(request, 'home/mensajes.html', context)

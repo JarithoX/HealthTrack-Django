@@ -16,37 +16,6 @@
                     <i class="bi bi-calendar-check me-2"></i>Registrar mi Día
                 </a>
             </div>
-        </div>
-        <i class="bi bi-activity position-absolute top-0 end-0 opacity-25"
-            style="font-size: 15rem; margin-top: -3rem; margin-right: -2rem;"></i>
-    </div>
-
-    <!-- Professional Comment Alert -->
-    {% if ultimo_comentario %}
-    <div class="alert alert-warning border-0 shadow-sm rounded-4 p-4 mb-5 d-flex align-items-start" role="alert">
-        <div class="bg-warning bg-opacity-25 text-warning p-3 rounded-circle me-3 flex-shrink-0">
-            <i class="bi bi-chat-quote-fill fs-3"></i>
-        </div>
-        <div>
-            <h4 class="alert-heading fw-bold text-dark mb-2">Mensaje de tu Profesional</h4>
-            <p class="mb-0 text-dark opacity-75 fs-5">{{ ultimo_comentario.comment }}</p>
-            <div class="d-flex align-items-center mt-2 gap-3">
-                <small class="text-muted">Enviado el {{ ultimo_comentario.created_at|date:"d M Y" }} por {{
-                    ultimo_comentario.professional }}</small>
-                <a href="{% url 'home:mensajes' %}" class="btn btn-sm btn-outline-dark rounded-pill px-3 fw-bold">
-                    <i class="bi bi-reply-fill me-1"></i>Responder
-                </a>
-            </div>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- Recommendations Header -->
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <div class="d-flex align-items-center">
-            <div class="bg-success bg-opacity-10 p-2 rounded-circle me-3 text-success">
-                <i class="bi bi-stars fs-4"></i>
-            </div>
             <div>
                 <h3 class="fw-bold mb-0">Tu Plan Personalizado</h3>
                 <p class="text-muted mb-0">Recomendaciones basadas en tus objetivos.</p>
@@ -180,6 +149,48 @@
                 spaceBetween: 30,
             },
         },
+    });
+</script>
+<!-- Floating Chat Widget -->
+<div class="position-fixed bottom-0 end-0 p-4" style="z-index: 1050;">
+    <button id="chat-toggle-btn"
+        class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center hover-elevate"
+        style="width: 60px; height: 60px; transition: transform 0.3s;">
+        <i class="bi bi-chat-dots-fill fs-3"></i>
+    </button>
+</div>
+
+<div id="chat-widget-window"
+    class="position-fixed bottom-0 end-0 m-4 bg-white rounded-4 shadow-lg overflow-hidden d-none"
+    style="width: 350px; height: 500px; z-index: 1060; border: 1px solid rgba(0,0,0,0.1);">
+    <div class="d-flex justify-content-between align-items-center bg-primary text-white p-2 px-3">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-chat-dots me-2"></i>
+            <span class="fw-bold">Chat con Profesional</span>
+        </div>
+        <button id="chat-close-btn" class="btn btn-sm btn-link text-white opacity-75 hover-opacity-100">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <iframe src="{% url 'home:mensajes' %}?mode=widget" class="w-100 h-100 border-0"
+        style="padding-bottom: 50px;"></iframe>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleBtn = document.getElementById('chat-toggle-btn');
+        const chatWindow = document.getElementById('chat-widget-window');
+        const closeBtn = document.getElementById('chat-close-btn');
+
+        toggleBtn.addEventListener('click', function () {
+            chatWindow.classList.remove('d-none');
+            toggleBtn.classList.add('d-none');
+        });
+
+        closeBtn.addEventListener('click', function () {
+            chatWindow.classList.add('d-none');
+            toggleBtn.classList.remove('d-none');
+        });
     });
 </script>
 {% endblock content %}
