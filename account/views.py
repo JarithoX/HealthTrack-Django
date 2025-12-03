@@ -9,9 +9,15 @@ import requests
 API_USUARIOS_URL = 'http://localhost:3000/api/usuarios' 
 
 def login_view(request):
-    # Si ya está autenticado, redirigir
+    # Si ya está autenticado, redirigir según el rol
     if request.user.is_authenticated:
-        return redirect('home:index')
+        user_rol = getattr(request.user, 'rol', None)
+        if user_rol == 'admin':
+            return redirect('admin_panel:dashboard')
+        elif user_rol == 'profesional':
+            return redirect('professional_panel:dashboard')
+        else:  # Rol 'user' o sin rol definido
+            return redirect('home:index')
     
     if request.method == 'POST':
         # El input en HTML se llama 'username', pero representa el identificador (email o username)
@@ -23,8 +29,6 @@ def login_view(request):
         user = authenticate(request, identifier=identifier, password=password)
 
         if user is not None:
-            # ¡Éxito!
-            # Convertimos el SimpleNamespace a dict
             request.session['user_session_data'] = user.__dict__
             
             # Redirección basada en roles
