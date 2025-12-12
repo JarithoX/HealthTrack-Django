@@ -54,3 +54,14 @@ def user_navigation_context(request):
             'NAV_CLASS': nav_color_class, 
         }
     return {}
+
+from .services import obtener_datos_perfil
+
+def user_profile_context(request):
+    """
+    Context processor que añade 'user_profile' a todos los templates.
+    """
+    if request.user.is_authenticated:
+        datos_api = obtener_datos_perfil(request)
+        return {'user_profile': datos_api}
+    return {'user_profile': None}

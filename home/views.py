@@ -1,11 +1,13 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.conf import settings
 import requests
+import sys
 from .forms import PerfilConfigForm 
 from professional_panel import services
 
-API_BASE_URL = 'http://localhost:3000/api' 
+API_BASE_URL = getattr(settings, 'API_BASE_URL', 'http://localhost:3000/api')
 
 def get_api_data(endpoint):
     """Función auxiliar para consultar la API."""
@@ -60,8 +62,16 @@ def completar_perfil_view(request):
 
                 # Manejo de respuestas
                 status = resp.status_code 
+                print(f"DEBUG API RESPONSE: {status} - {resp.text}", file=sys.stderr) 
 
                 if status in (200, 204):
+                    # Actualizar sesión local para que el Wizard funcione sin re-login
+                    user_data = request.session.get('user_session_data', {})
+                    user_data.update(payload)
+                    user_data['activo'] = True
+                    request.session['user_session_data'] = user_data
+                    request.session.modified = True
+
                     messages.success(request, '¡Perfil completado! Bienvenido.')
                     return redirect('home:index') 
                 
@@ -87,11 +97,14 @@ def completar_perfil_view(request):
                 else: # Otros errores de la api
                     messages.error(request, f"Error en la API ({status}). Intenta más tarde.")
                     
-            except requests.Timeout:
+            except requests.Timeout as e:
+                print(f"ERROR API TIMEOUT: {e}", file=sys.stderr)
                 messages.error(request, "La API tardó demasiado en responder.")
-            except requests.ConnectionError:
+            except requests.ConnectionError as e:
+                print(f"ERROR API CONNECTION: {e}", file=sys.stderr)
                 messages.error(request, "No se pudo conectar con la API. ¿Está la API arriba?")
             except Exception as e:
+                print(f"ERROR API UNEXPECTED: {e}", file=sys.stderr)
                 messages.error(request, f"Error inesperado: {e}")
 
     else:

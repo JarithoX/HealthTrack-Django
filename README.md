@@ -1,5 +1,15 @@
 # HealthTrack - Proyecto Final
 
+Interfaz de usuario web construida con **Django**. Maneja las vistas, sesiones de usuario y consume la API de Node.js para todas las operaciones de datos.
+
+## 🛠️ Tecnologías
+* **Framework:** Django (Python )
+* **Estilos:** Bootstrap 
+* **Servidor Prod:** Gunicorn + WhiteNoise (para estáticos)
+* **Despliegue:** Google Cloud Run (Dockerizado)
+
+---
+
 REPOSITORIO:
 ```powershell
 https://github.com/JarithoX/HealthTrack-Django.git
@@ -37,14 +47,6 @@ pip install requests
 
 ## Ejecutar proyecto:
 
-1.- Activa el entorno virtual
-```powershell
-cd .\entorno\Scripts\
-```
-
-```powershell
-.\Activate.ps1
-```
 
 1.1.- Activa el entorno virtual en una sola linea
 ```powershell
@@ -59,4 +61,31 @@ python manage.py runserver
 2.1.- Migrar la base de datos:
 ```powershell
 .\entorno\Scripts\python.exe manage.py migrate
+```
+
+3. instalar dependencias:
+```powershell
+pip install -r requirements.txt
+```
+
+---
+
+## 💻 Desarrollo Local (Cómo ejecutar en tu PC)
+
+### 1. Prerrequisitos
+* Python 3.10+ instalado.
+* Entorno virtual creado (`python -m venv entorno`).
+
+### 2. Configuración de Variables (`.env`)
+En local, Django puede usar un archivo `.env` o valores por defecto en `settings.py`.
+Asegúrate de que la URL de la API apunte a tu local:
+```env
+DEBUG=True
+API_URL=http://localhost:3000/api
+SECRET_KEY=django-insecure-...
+```
+
+### 3. Despliegue en Google Cloud Run
+```powershell
+gcloud run deploy healthtrack-django --source . --region us-central1 --allow-unauthenticated
 ```

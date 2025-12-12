@@ -3,7 +3,7 @@ from django.conf import settings
 import requests
 from types import SimpleNamespace
 
-API_BASE_URL = getattr(settings, 'API_BASE_URL', 'http://localhost:3000/api')
+API_BASE_URL = settings.API_BASE_URL
 
 class NodeAPIBackend(BaseBackend):
     """

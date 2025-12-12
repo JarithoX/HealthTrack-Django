@@ -4,9 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.conf import settings
 import requests
-
-# Se puede usar la URL de settings.py, o definirla aquí directamente:
-API_USUARIOS_URL = 'http://localhost:3000/api/usuarios' 
+import sys
 
 def login_view(request):
     # Si ya está autenticado, redirigir según el rol
@@ -20,31 +18,64 @@ def login_view(request):
             return redirect('home:index')
     
     if request.method == 'POST':
-        # El input en HTML se llama 'username', pero representa el identificador (email o username)
-        identifier = request.POST.get('username')
-        password = request.POST.get('password')
-        
-        # Autenticar usando NodeAPIBackend
-        # Pasamos 'identifier' explícitamente para que el backend lo use
-        user = authenticate(request, identifier=identifier, password=password)
+        try:
+            # El input en HTML se llama 'username', pero representa el identificador (email o username)
+            identifier = request.POST.get('username')
+            password = request.POST.get('password')
+            
+            # Autenticar usando NodeAPIBackend
+            # Pasamos 'identifier' explícitamente para que el backend lo use
+            user = authenticate(request, identifier=identifier, password=password)
 
-        if user is not None:
-            request.session['user_session_data'] = user.__dict__
-            
-            # Redirección basada en roles
-            if getattr(user, 'rol', None) == 'admin':
-                return redirect('admin_panel:dashboard')
-            elif getattr(user, 'rol', None) == 'profesional':
-                return redirect('professional_panel:dashboard')
-            
-            # Lógica para usuarios normales (rol 'user' o sin rol definido)
-            # Para manejar 'is_active' al onboarding
-            if not getattr(user, 'is_active', True):
-                 return redirect('home:completar_perfil')
-            
-            return redirect('home:index') 
+            if user is not None:
+                session_data = {
+                    'uid': user.uid,
+                    'username': user.username,
+                    'email': user.email,
+                    'rol': getattr(user, 'rol', 'user'),
+                    'token': getattr(user, 'token', ''),
+                    'is_active': getattr(user, 'is_active', True),
+                    'is_staff': getattr(user, 'is_staff', False),
+                    'is_superuser': getattr(user, 'is_superuser', False),
+                }
 
-        messages.error(request, 'Nombre de usuario o contraseña incorrectos.')
+                # --- DEBUGGING SESSION SIZE ---
+                try:
+                    import json
+                    session_json = json.dumps(session_data)
+                    size_bytes = len(session_json.encode('utf-8'))
+                    print(f"DEBUG SESSION SIZE: {size_bytes} bytes", file=sys.stderr)
+                    if size_bytes > 3800:
+                        print("WARNING: Session data is VERY close to the 4KB cookie limit!", file=sys.stderr)
+                except Exception as e:
+                    print(f"Error calculating session size: {e}", file=sys.stderr)
+                # ------------------------------
+
+                request.session['user_session_data'] = session_data
+
+                request.session.modified = True
+                
+                # Redirección basada en roles
+                user_rol = session_data.get('rol') # Usamos el dato limpio
+                if user_rol == 'admin':
+                    return redirect('admin_panel:dashboard')
+                elif user_rol == 'profesional':
+                    return redirect('professional_panel:dashboard')
+                
+                # Lógica para usuarios normales (rol 'user' o sin rol definido)
+                # Para manejar 'is_active' al onboarding
+                if not session_data.get('is_active', True):
+                     return redirect('home:completar_perfil')
+                
+                return redirect('home:index') 
+
+            messages.error(request, 'Nombre de usuario o contraseña incorrectos.')
+
+        except Exception as e:
+            import traceback
+            print(f"CRITICAL ERROR IN LOGIN_VIEW: {e}", file=sys.stderr)
+            traceback.print_exc(file=sys.stderr)
+            messages.error(request, 'Ocurrió un error inesperado al iniciar sesión. Por favor, intenta de nuevo.')
 
     return render(request, 'account/login.html')
 
@@ -63,7 +94,7 @@ def register_view(request):
         }
 
         try:
-            api_base = getattr(settings, 'API_BASE_URL', 'http://localhost:3000/api')
+            api_base = settings.API_BASE_URL
             resp = requests.post(f"{api_base}/auth/register", json=data, timeout=10)
             
         except requests.exceptions.RequestException as e:
