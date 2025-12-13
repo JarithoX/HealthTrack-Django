@@ -6,9 +6,9 @@
 <div class="container mt-5 mb-5">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
-            
+
             <div class="card shadow-sm border-0 border-top border-4 border-primary">
-                
+
                 <div class="card-header bg-white py-3 border-bottom">
                     <h4 class="mb-0 fw-bold text-primary">
                         <i class="bi bi-person-gear me-2"></i>{{ panel_title }}
@@ -30,11 +30,11 @@
                             <div class="col-sm-4 text-muted">Rol Actual:</div>
                             <div class="col-sm-8">
                                 {% if current_rol == 'admin' %}
-                                    <span class="badge bg-danger">ADMINISTRADOR</span>
+                                <span class="badge bg-danger">ADMINISTRADOR</span>
                                 {% elif current_rol == 'profesional' %}
-                                    <span class="badge bg-info text-dark">PROFESIONAL</span>
+                                <span class="badge bg-info text-dark">PROFESIONAL</span>
                                 {% else %}
-                                    <span class="badge bg-secondary">USUARIO</span>
+                                <span class="badge bg-secondary">USUARIO</span>
                                 {% endif %}
                             </div>
                         </div>
@@ -52,15 +52,54 @@
                                 {{ form.rol }}
                             </div>
                             {% if form.rol.errors %}
-                                <div class="text-danger small mt-1">
-                                    <i class="bi bi-exclamation-circle me-1"></i>{{ form.rol.errors|striptags }}
-                                </div>
+                            <div class="text-danger small mt-1">
+                                <i class="bi bi-exclamation-circle me-1"></i>{{ form.rol.errors|striptags }}
+                            </div>
                             {% endif %}
                             <div class="form-text text-muted small mt-2">
                                 <i class="bi bi-info-circle me-1"></i>
-                                <strong>Admin:</strong> Control total. <strong>Profesional:</strong> Gestión de pacientes. <strong>User:</strong> Acceso estándar.
+                                <strong>Admin:</strong> Control total. <strong>Profesional:</strong> Gestión de
+                                pacientes. <strong>User:</strong> Acceso estándar.
                             </div>
                         </div>
+
+                        <!-- Campo PIN de Seguridad (Oculto por defecto) -->
+                        <div class="mb-4" id="pinContainer" style="display: none;">
+                            <label for="security_pin" class="form-label fw-bold text-danger">
+                                <i class="bi bi-shield-lock-fill"></i> PIN de Seguridad (Requerido para Admin)
+                            </label>
+                            <input type="password" class="form-control border-danger" name="security_pin"
+                                id="security_pin" placeholder="Ingresa el PIN de autorización">
+                            <div class="form-text text-danger small">
+                                <i class="bi bi-exclamation-triangle"></i> Requerido para otorgar permisos de
+                                Administrador.
+                            </div>
+                        </div>
+
+                        <!-- Script para mostrar/ocultar PIN -->
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                                const rolSelect = document.getElementById('{{ form.rol.id_for_label }}');
+                                const pinContainer = document.getElementById('pinContainer');
+                                const pinInput = document.getElementById('security_pin');
+
+                                function togglePin() {
+                                    if (rolSelect && rolSelect.value === 'admin') {
+                                        pinContainer.style.display = 'block';
+                                        pinInput.setAttribute('required', 'required');
+                                    } else {
+                                        pinContainer.style.display = 'none';
+                                        pinInput.removeAttribute('required');
+                                        pinInput.value = '';
+                                    }
+                                }
+
+                                if (rolSelect) {
+                                    rolSelect.addEventListener('change', togglePin);
+                                    togglePin(); // Estado inicial
+                                }
+                            });
+                        </script>
 
                         <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
                             <a href="{% url 'admin_panel:listar_usuarios' %}" class="btn btn-outline-secondary">
@@ -72,20 +111,21 @@
                         </div>
                         <br>
                         {% if messages %}
-                            {% for message in messages %}
-                                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
-                                    <i class="bi bi-info-circle-fill me-2"></i>{{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                            {% endfor %}
+                        {% for message in messages %}
+                        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show"
+                            role="alert">
+                            <i class="bi bi-info-circle-fill me-2"></i>{{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
                         {% endif %}
                     </form>
 
                 </div>
             </div>
         </div>
-        
+
     </div>
-    
+
 </div>
 {% endblock %}

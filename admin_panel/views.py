@@ -4,6 +4,7 @@ from django.conf import settings
 from .forms import RolUsuarioForm
 from django.contrib import messages
 import requests # Para comunicarse con la API de Node.js (Firebase)
+import sys # Para logging en Cloud Run
 
 API_BASE_URL = getattr(settings, 'API_BASE_URL', 'http://localhost:3000/api')
 USUARIO_API_URL = f"{API_BASE_URL}/usuarios" # Ajusta si tu endpoint es diferente
@@ -81,6 +82,7 @@ def listar_usuarios_view(request):
         return redirect('account:login')
 
 # 1. Obtener la lista de usuarios de la API de Node.js (Fuente de la verdad)
+    print(f"DEBUG: Listando usuarios solicitados por {request.user.username}", file=sys.stderr)
     try:
         resp = requests.get(USUARIO_API_URL, headers=headers, timeout=5)
         if resp.status_code == 200:
@@ -145,8 +147,17 @@ def editar_usuario_view(request, username):
         if form.is_valid():
             new_rol = form.cleaned_data['rol']
             
+            # --- PROTECCIÓN PIN PARA PROMOVER A ADMIN ---
+            if new_rol == 'admin':
+                security_pin = request.POST.get('security_pin')
+                if security_pin != '123':
+                    messages.error(request, "PIN de seguridad incorrecto. No se puede asignar el rol de Administrador.")
+                    return redirect('admin_panel:editar_usuario', username=username)
+            # --------------------------------------------
+            
             data_update = {
                 'rol': new_rol,
+                'securityPin': request.POST.get('security_pin') # Enviar PIN a la API
             }
             
             try:
@@ -218,18 +229,38 @@ def eliminar_usuario_view(request, username):
 
         if resp.status_code == 200:
             usuario_firebase = resp.json()
-    except:
+            print(f"DEBUG: Datos usuario objetivo ({username}): {usuario_firebase}", file=sys.stderr)
+    except Exception as e:
+        print(f"DEBUG ERROR fetching user {username}: {e}", file=sys.stderr)
         pass
     
     # Restricción: No se permite la auto-eliminación
     if request.user.username == username:
         messages.error(request, "No puedes eliminar tu propia cuenta desde el panel de administración.")
         return redirect('admin_panel:listar_usuarios')
-        
+
+    # Restricción: No se permite eliminar a otros administradores
+    # Restricción: No se permite eliminar a otros administradores SIN PIN
+    if usuario_firebase.get('rol') == 'admin':
+        # Esta verificación preliminar es para GET, en POST se valida el PIN
+        if request.method == 'GET':
+             messages.warning(request, "Atención: Estás a punto de eliminar a un Administrador. Se requerirá un PIN de seguridad.")
+    
     if request.method == 'POST':
         try:
+            # --- PROTECCIÓN PIN PARA ELIMINAR ADMIN ---
+            if usuario_firebase.get('rol') == 'admin':
+                security_pin = request.POST.get('security_pin')
+                if security_pin != '123':
+                    messages.error(request, "PIN de seguridad incorrecto. Eliminación de Administrador cancelada.")
+                    return redirect('admin_panel:lista_usuarios') # Fallback seguro
+            # ------------------------------------------
             # 1. Eliminar en Firebase (Node.js API)
+            # Enviamos el PIN en el body (si la API lo soporta) o dependemos de headers
+            delete_payload = {'securityPin': request.POST.get('security_pin')}
+            
             resp = requests.delete(f"{USUARIO_API_URL}/username/{username}", 
+            json=delete_payload,
             headers=headers, 
             timeout=5
             )

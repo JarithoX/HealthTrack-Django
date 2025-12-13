@@ -108,14 +108,12 @@
         {% endif %}
         {% endif %}
 
-        <!-- Botones de Acción -->
         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5 pt-3 border-top">
-            <a href="#" class="btn btn-outline-secondary">
-                <i class="bi bi-key me-2"></i>Cambiar Contraseña
-            </a>
-            <a href="#" class="btn btn-primary">
+            {% if usuario.rol != 'admin' %}
+            <a href="{% url 'perfiles:editar_perfil' %}" class="btn btn-primary">
                 <i class="bi bi-pencil-square me-2"></i>Editar Perfil
             </a>
+            {% endif %}
         </div>
     </div>
 </div>

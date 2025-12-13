@@ -38,6 +38,7 @@ MIDDLEWARE = [
     'account.middleware.RemoteUserMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'healthtrack.middleware.ProfileCompletionMiddleware',
 ]
 
 ROOT_URLCONF = 'healthtrack.urls'

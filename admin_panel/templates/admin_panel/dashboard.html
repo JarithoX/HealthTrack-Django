@@ -27,7 +27,8 @@
                             <h2 class="mb-0 fw-bold">{{ stats.total }}</h2>
                         </div>
                         <div class="icon-shape bg-primary bg-opacity-10 text-primary rounded-circle flex-shrink-0">
-                            <div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <div
+                                style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
                                 <i class="bi bi-people-fill fs-4"></i>
                             </div>
                         </div>
@@ -41,7 +42,8 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="overflow-hidden me-2">
-                            <h6 class="text-muted text-uppercase mb-2 text-truncate" style="font-size: 0.8rem;" title="Profesionales">
+                            <h6 class="text-muted text-uppercase mb-2 text-truncate" style="font-size: 0.8rem;"
+                                title="Profesionales">
                                 Profesionales
                             </h6>
                             <h2 class="mb-0 fw-bold">{{ stats.profesionales }}</h2>
@@ -64,7 +66,8 @@
                             <h2 class="mb-0 fw-bold">{{ stats.activos }}</h2>
                         </div>
                         <div class="icon-shape bg-success bg-opacity-10 text-success rounded-circle flex-shrink-0">
-                            <div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <div
+                                style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
                                 <i class="bi bi-check-circle-fill fs-4"></i>
                             </div>
                         </div>
@@ -82,7 +85,8 @@
                             <h2 class="mb-0 fw-bold">{{ stats.inactivos }}</h2>
                         </div>
                         <div class="icon-shape bg-warning bg-opacity-10 text-warning rounded-circle flex-shrink-0">
-                            <div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <div
+                                style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
                                 <i class="bi bi-exclamation-triangle-fill fs-4"></i>
                             </div>
                         </div>
@@ -96,20 +100,14 @@
         <div class="col-12">
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-light py-3">
-                    <h5 class="m-0 fw-bold text-primary"><i class="bi bi-lightning-fill me-2"></i>Acciones Rápidas</h5>
+                    <h5 class="m-0 fw-bold text-primary"><i class="bi bi-gear-fill me-2"></i>Panel de Gestión</h5>
                 </div>
                 <div class="card-body">
-                    <p class="text-muted">Accesos directos a las funciones más utilizadas.</p>
+                    <p class="text-muted">Herramientas de administración del sistema.</p>
                     <div class="d-flex gap-3">
-                        <a href="{% url 'admin_panel:listar_usuarios' %}" class="btn btn-primary">
-                            <i class="bi bi-people me-2"></i>Gestionar Usuarios
+                        <a href="{% url 'admin_panel:listar_usuarios' %}" class="btn btn-primary bg-gradient px-4 py-2">
+                            <i class="bi bi-people-fill me-2"></i>Gestionar Usuarios
                         </a>
-                        <button class="btn btn-outline-secondary" disabled>
-                            <i class="bi bi-plus-circle me-2"></i>Crear Hábito Global (Pronto)
-                        </button>
-                        <button class="btn btn-outline-secondary" disabled>
-                            <i class="bi bi-megaphone me-2"></i>Enviar Anuncio (Pronto)
-                        </button>
                     </div>
                 </div>
             </div>

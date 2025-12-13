@@ -24,4 +24,4 @@ RUN python manage.py collectstatic --noinput
 
 #-----------------------------------------------------
 # Ejecuta migraciones y LUEGO inicia el servidor
-CMD python manage.py migrate && exec gunicorn --bind 0.0.0.0:8080 --workers 1 --threads 8 --timeout 0 healthtrack.wsgi:application
+CMD python manage.py migrate && exec gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 0 healthtrack.wsgi:application

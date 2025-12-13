@@ -31,13 +31,14 @@
     <div class="row g-4">
         {% for habito in habitos %}
         <div class="col-md-6 col-lg-4">
-            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden hover-card">
+            <div
+                class="card h-100 shadow-sm rounded-4 overflow-hidden hover-card {% if habito.assignedBy %}border-warning bg-warning bg-opacity-10{% else %}border-0{% endif %}">
 
                 <!-- Card Header -->
                 <div
-                    class="card-header bg-white border-0 pt-4 pb-0 px-4 d-flex justify-content-between align-items-start">
+                    class="card-header border-0 pt-4 pb-0 px-4 d-flex justify-content-between align-items-start {% if habito.assignedBy %}bg-transparent{% else %}bg-white{% endif %}">
                     <div class="d-flex align-items-center">
-                        <div class="icon-box bg-light text-primary rounded-circle me-3 d-flex align-items-center justify-content-center"
+                        <div class="icon-box {% if habito.assignedBy %}bg-warning text-dark{% else %}bg-light text-primary{% endif %} rounded-circle me-3 d-flex align-items-center justify-content-center"
                             style="width: 45px; height: 45px;">
                             {% if habito.icono %}
                             <i class="bi bi-{{ habito.icono }} fs-5"></i>
@@ -48,8 +49,23 @@
                         <div>
                             <h5 class="fw-bold mb-0 text-truncate" style="max-width: 150px;"
                                 title="{{ habito.nombre }}">{{ habito.nombre }}</h5>
+
+                            <!-- Subtítulo de Recomendación -->
+                            {% if habito.assignedBy %}
+                            <small class="d-block text-dark fw-semibold mt-1" style="font-size: 0.8rem;">
+                                <i class="bi bi-star-fill text-warning me-1"></i>Recomendado por {{ habito.assignedBy }}
+                            </small>
+                            {% endif %}
+
+                            <!-- Descripción / Comentario -->
+                            {% if habito.descripcion %}
+                            <p class="text-muted small mb-0 mt-2" style="font-size: 0.85rem; line-height: 1.2;">
+                                {{ habito.descripcion }}
+                            </p>
+                            {% endif %}
+
                             {% if habito.tipo_medicion != 'Booleano' and habito.tipo_medicion != 'Binario' %}
-                            <small class="text-muted">Meta: {{ habito.meta }} {{ habito.unidad }}</small>
+                            <small class="text-muted d-block mt-1">Meta: {{ habito.meta }} {{ habito.unidad }}</small>
                             {% endif %}
                         </div>
                     </div>

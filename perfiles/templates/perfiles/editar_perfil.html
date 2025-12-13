@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Perfil | Health Track{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-0">
+                <div class="d-flex align-items-center">
+                    <a href="{% url 'perfiles:ver_perfil' %}" class="btn btn-light rounded-circle me-3">
+                        <i class="bi bi-arrow-left"></i>
+                    </a>
+                    <h4 class="mb-0 fw-bold text-primary">Editar Perfil</h4>
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger rounded-3">
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% endif %}
+
+                    <!-- (Bloque Seguridad movido al final) -->
+
+                    <!-- Sección Datos Personales -->
+                    <h6 class="text-muted text-uppercase small fw-bold mb-3 border-bottom pb-2">Datos Personales</h6>
+
+                    {% if user_session_data.rol == 'admin' %}
+                    <!-- VISTA ADMIN: SOLO UN CAMPO DE NOMBRE (PIDE USUARIO) -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-12">
+                            <label class="form-label fw-medium">Nombre de Usuario</label>
+                            {{ form.nombre }}
+                            {{ form.nombre.errors }}
+                        </div>
+                    </div>
+                    {% else %}
+                    <!-- VISTA NORMAL: NOMBRE Y APELLIDO -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium">{{ form.nombre.label }}</label>
+                            {{ form.nombre }}
+                            {{ form.nombre.errors }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium">{{ form.apellido.label }}</label>
+                            {{ form.apellido }}
+                            {{ form.apellido.errors }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Sección Datos de Salud (Solo Usuarios) -->
+                    {% if user_session_data.rol == 'user' %}
+                    <h6 class="text-muted text-uppercase small fw-bold mb-3 border-bottom pb-2 mt-4">Métricas de Salud
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-medium w-100">
+                                <i class="bi bi-speedometer2 me-1 text-primary"></i> {{ form.peso.label }}
+                            </label>
+                            {{ form.peso }}
+                            {{ form.peso.errors }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-medium w-100">
+                                <i class="bi bi-rulers me-1 text-info"></i> {{ form.altura.label }}
+                            </label>
+                            {{ form.altura }}
+                            {{ form.altura.errors }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-medium w-100">
+                                <i class="bi bi-cake me-1 text-warning"></i> {{ form.edad.label }}
+                            </label>
+                            {{ form.edad }}
+                            {{ form.edad.errors }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium">{{ form.genero.label }}</label>
+                            {{ form.genero }}
+                            {{ form.genero.errors }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Rutina (Solo Usuarios) -->
+                    {% if user_session_data.rol == 'user' %}
+                    <h6 class="text-muted text-uppercase small fw-bold mb-3 border-bottom pb-2 mt-5">Tu Rutina</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium">
+                                <i class="bi bi-sunrise me-1 text-warning"></i> {{ form.hora_despertar.label }}
+                            </label>
+                            {{ form.hora_despertar }}
+                            {{ form.hora_despertar.errors }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium">
+                                <i class="bi bi-moon-stars me-1 text-primary"></i> {{ form.hora_dormir.label }}
+                            </label>
+                            {{ form.hora_dormir }}
+                            {{ form.hora_dormir.errors }}
+                        </div>
+                    </div>
+
+                    <!-- Objetivos -->
+                    <h6 class="text-muted text-uppercase small fw-bold mb-3 border-bottom pb-2 mt-5">Objetivos</h6>
+                    <div class="mb-3">
+                        <label class="form-label d-block mb-3">{{ form.objetivos.label }}</label>
+                        <div class="row">
+                            {% for checkbox in form.objetivos %}
+                            <div class="col-md-6 mb-2">
+                                <div class="form-check p-3 border rounded-3 bg-light h-100">
+                                    {{ checkbox.tag }}
+                                    <label class="form-check-label fw-medium ms-2" for="{{ checkbox.id_for_label }}">
+                                        {{ checkbox.choice_label }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {{ form.objetivos.errors }}
+                    </div>
+                    {% endif %}
+
+                    <!-- SECCIÓN SEGURIDAD: CAMBIAR CONTRASEÑA (Movido aquí) -->
+                    <div class="alert alert-info border-info bg-info bg-opacity-10 mt-5 mb-4">
+                        <h6 class="text-info fw-bold mb-3"><i class="bi bi-shield-lock me-2"></i>Seguridad de la Cuenta
+                        </h6>
+                        <p class="small text-muted mb-3">Si deseas cambiar tu contraseña, rellena estos campos. Si no,
+                            déjalos vacíos.</p>
+
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label class="form-label fw-medium small text-muted">Contraseña Actual</label>
+                                <input type="password" name="current_password" class="form-control"
+                                    placeholder="Ingresa tu contraseña actual">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium small text-muted">Nueva Contraseña</label>
+                                <input type="password" name="new_password" class="form-control"
+                                    placeholder="Mínimo 6 caracteres">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-medium small text-muted">Confirmar Nueva Contraseña</label>
+                                <input type="password" name="confirm_password" class="form-control"
+                                    placeholder="Repite la nueva contraseña">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-5 pt-3 border-top">
+                        <a href="{% url 'perfiles:ver_perfil' %}" class="btn btn-outline-secondary px-4">Cancelar</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-lg me-2"></i>Guardar Cambios
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

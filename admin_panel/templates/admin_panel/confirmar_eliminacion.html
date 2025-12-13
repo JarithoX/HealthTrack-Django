@@ -6,32 +6,43 @@
 <div class="container mt-5 mb-5">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
-            
+
             <div class="card shadow-lg border-0 border-top border-4 border-danger">
-                
+
                 <div class="card-body text-center p-5">
-                    
+
                     <div class="mb-4">
-                        <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-inline-flex align-items-center justify-content-center"
+                            style="width: 80px; height: 80px;">
                             <i class="bi bi-exclamation-triangle-fill fs-1"></i>
                         </div>
                     </div>
 
                     <h3 class="fw-bold text-dark mb-2">¿Estás seguro?</h3>
                     <p class="text-muted mb-4">Esta acción eliminará permanentemente al usuario:</p>
-                    
+
                     <div class="bg-light border rounded p-3 mb-4">
                         <h4 class="text-danger fw-bold m-0 text-break">{{ usuario.username }}</h4>
                         <small class="text-muted">{{ usuario.email }}</small>
                     </div>
 
                     <p class="text-secondary small mb-4">
-                        Esta acción <strong>no se puede deshacer</strong>. Todos los datos asociados (hábitos, historial, métricas) se perderán para siempre.
+                        Esta acción <strong>no se puede deshacer</strong>. Todos los datos asociados (hábitos,
+                        historial, métricas) se perderán para siempre.
                     </p>
 
                     <form method="post">
                         {% csrf_token %}
                         <div class="d-grid gap-3">
+                            {% if usuario.rol == 'admin' %}
+                            <div class="mb-2 text-start p-3 bg-danger bg-opacity-10 border border-danger rounded">
+                                <label for="security_pin" class="form-label fw-bold text-danger small">
+                                    <i class="bi bi-shield-lock-fill"></i> PIN de Seguridad
+                                </label>
+                                <input type="password" class="form-control border-danger" name="security_pin"
+                                    id="security_pin" placeholder="PIN de Seguridad" required>
+                            </div>
+                            {% endif %}
                             <button type="submit" class="btn btn-danger btn-lg shadow-sm">
                                 <i class="bi bi-trash-fill me-2"></i>Sí, Eliminar Permanentemente
                             </button>

@@ -24,8 +24,12 @@
         <!-- Columna Izquierda: Hábitos Definidos -->
         <div class="col-md-4">
             <div class="card shadow-sm border-0 h-100">
-                <div class="card-header bg-light py-3">
+                <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
                     <h5 class="m-0 fw-bold text-primary"><i class="bi bi-list-check me-2"></i>Hábitos Activos</h5>
+                    <a href="{% url 'professional_panel:recomendar_habito' usuario.username %}"
+                        class="btn btn-sm btn-outline-success">
+                        Recomendar
+                    </a>
                 </div>
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush">

@@ -69,10 +69,13 @@ def completar_perfil_view(request):
                     user_data = request.session.get('user_session_data', {})
                     user_data.update(payload)
                     user_data['activo'] = True
+                    user_data['is_active'] = True # CRÍTICO: Actualizar bandera para Middleware local
                     request.session['user_session_data'] = user_data
                     request.session.modified = True
 
                     messages.success(request, '¡Perfil completado! Bienvenido.')
+                    # from django.contrib.auth import login -> No necesario en custom auth
+                    # login(request, request.user) -> CAUSA ERROR '_meta', removido.
                     return redirect('home:index') 
                 
                 elif status in (400, 422):
